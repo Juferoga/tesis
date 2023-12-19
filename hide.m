@@ -3,6 +3,9 @@ function modifiedAudio = hide()
     global audio;
     global Temp_img;
     
+    % Abrir un archivo para guardar las posiciones modificadas
+    fileID = fopen('modified_positions.txt', 'w'); % 'a' para archivo existente
+
     % Longitud del audio y de la imagen binaria
     audioLength = numel(audio);
     imageLength = numel(Temp_img);
@@ -16,11 +19,12 @@ function modifiedAudio = hide()
     end
 
     % Incrustar la imagen en el audio por fragmentos
-    modifiedAudio = int16(audio);
+    global audio_modificado
+    audio_modificado = int16(audio);
     imageBits = int16(Temp_img - '0'); % Convertir a int16
 
     % Tamaño del fragmento para procesar
-    fragmentSize = 10000; %memoria disponible
+    fragmentSize = 10000; % Ajustar según la memoria disponible
 
     for i = 1:fragmentSize:imageLength
         % Calcular el final del fragmento actual
@@ -39,10 +43,16 @@ function modifiedAudio = hide()
         for j = 1:minSize
             pos = currentLorenz(j);
             imageBit = currentImageBits(j);
-            audioBit = bitget(modifiedAudio(pos), 1);
-            modifiedAudio(pos) = bitset(modifiedAudio(pos), 1, bitxor(audioBit, imageBit));
+            audioBit = bitget(audio_modificado(pos), 1);
+            audio_modificado(pos) = bitset(audio_modificado(pos), 1, bitxor(audioBit, imageBit));
+
+            % Registrar la posición modificada en el archivo
+            fprintf(fileID, '%d\n', pos);
         end
     end
+
+    % Cerrar el archivo
+    fclose(fileID);
 
 end
 

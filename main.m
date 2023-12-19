@@ -90,16 +90,16 @@ function Temp_aud = Embed_Optimize(audio, path_audio, image, path_img)
     % Guardar las variables en un archivo .mat
     save('resultadoSito.mat', 'key', 'fVal');
 
-    %Temp_aud = audio;
     % Guardar el audio modificado
-    %audiowrite('audio_modificado.wav', Temp_aud,  44100);
-    %disp('Audio guardado');
+    global audio_modificado
+    audiowrite('audio_modificado.wav', audio_modificado,  44100);
+    disp('Audio guardado');
     
     graphicAudio();
     
-    %extractedImage = extractImage(audio, key, length(Temp_img));
+    extractedImage = extractImage(audio, 'modified_positions.txt', length(Temp_img));
     % Mostrar la imagen recuperada
-    %imshow(extractedImage);
+    imshow(extractedImage);
     
     %title('Imagen Recuperada');
     % Guardar los resultados
