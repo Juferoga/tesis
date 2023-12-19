@@ -27,7 +27,6 @@ function objective = objectiveFunction(position)
 
     % Función objetivo (puede necesitar ajuste en función de cómo desees equilibrar las métricas)
     objective = mse / (psnrValue * ssimValue);
-    disp(objective);
 
     % Crear figuras en tiempo real
     figure(1);
