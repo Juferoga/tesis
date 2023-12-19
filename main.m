@@ -53,7 +53,7 @@ function Temp_aud = Embed_Optimize(audio, path_audio, image, path_img)
     disp(Temp_img)
 
     % Inicialización de variables para SITO
-    %options = SitoOptimset(...
+    %options = SitoOptimset('MaxIteration', 6);
     %    'PopulationType', 'bitstring',...
     %    'SocietySize', 3,...
     %    'Variant', 'Osito',...
@@ -90,10 +90,10 @@ function Temp_aud = Embed_Optimize(audio, path_audio, image, path_img)
     % Guardar las variables en un archivo .mat
     save('resultadoSito.mat', 'key', 'fVal');
 
-    Temp_aud = audio;
+    %Temp_aud = audio;
     % Guardar el audio modificado
-    audiowrite('audio_modificado.wav', Temp_aud,  44100);
-    disp('Audio guardado');
+    %audiowrite('audio_modificado.wav', Temp_aud,  44100);
+    %disp('Audio guardado');
     
     graphicAudio();
     

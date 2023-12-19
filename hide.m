@@ -1,31 +1,49 @@
 function modifiedAudio = hide()
-    
-    global Temp_img
-    global audio_modificado
+
+    global audio;
+    global Temp_img;
     
     % Longitud del audio y de la imagen binaria
-    audioLength = numel(audio_modificado);
+    audioLength = numel(audio);
     imageLength = numel(Temp_img);
 
     % Generar la secuencia del atractor de Lorenz
     lorenzSequence = generateLorenzSequence(imageLength, audioLength);
 
-    % Incrustar la imagen en el audio
-    modifiedAudio = int16(audio_modificado);
-    for i = 1:imageLength
-        % Utilizar la secuencia de Lorenz para determinar la posición en el audio
-        pos = lorenzSequence(i);
+    % Verificar si la secuencia de Lorenz excede los límites del audio
+    if any(lorenzSequence < 1 | lorenzSequence > audioLength)
+        error('La secuencia de Lorenz excede los límites del audio.');
+    end
 
-        % Modifica el audio en esa posición con la información de la imagen
-        if pos >= 1 && pos <= audioLength
-            % Aplica XOR entre el bit de la imagen y el bit del audio
-            imageBit = Temp_img(i) - '0';
+    % Incrustar la imagen en el audio por fragmentos
+    modifiedAudio = int16(audio);
+    imageBits = int16(Temp_img - '0'); % Convertir a int16
+
+    % Tamaño del fragmento para procesar
+    fragmentSize = 10000; %memoria disponible
+
+    for i = 1:fragmentSize:imageLength
+        % Calcular el final del fragmento actual
+        endIdx = min(i + fragmentSize - 1, imageLength);
+
+        % Extraer el fragmento actual de la secuencia de Lorenz y los bits de la imagen
+        currentLorenz = lorenzSequence(i:endIdx);
+        currentImageBits = imageBits(i:endIdx);
+
+        % Asegurarse de que ambos arreglos tengan el mismo tamaño
+        minSize = min(numel(currentLorenz), numel(currentImageBits));
+        currentLorenz = currentLorenz(1:minSize);
+        currentImageBits = currentImageBits(1:minSize);
+
+        % Actualizar los bits del audio uno por uno
+        for j = 1:minSize
+            pos = currentLorenz(j);
+            imageBit = currentImageBits(j);
             audioBit = bitget(modifiedAudio(pos), 1);
             modifiedAudio(pos) = bitset(modifiedAudio(pos), 1, bitxor(audioBit, imageBit));
-        else
-            warning('Posición fuera de los límites del audio.');
         end
     end
+
 end
 
 function lorenzSequence = generateLorenzSequence(length, maxPos)
@@ -35,11 +53,11 @@ function lorenzSequence = generateLorenzSequence(length, maxPos)
     rho = 28;
 
     % Condiciones iniciales
-    y0 = [1;1;1]; 
+    y0 = [1; 1; 1]; 
 
     % Resolver las ecuaciones de Lorenz
-    [t,y] = ode45(@(t,y)[sigma*(y(2)-y(1)); y(1)*(rho-y(3))-y(2); y(1)*y(2)-beta*y(3)], [0 0.1*length], y0);
+    [t,y] = ode45(@(t,y) [sigma*(y(2)-y(1)); y(1)*(rho-y(3))-y(2); y(1)*y(2)-beta*y(3)], [0, 0.1*length], y0);
 
-    % Normalizar y escalar la secuencia para que se ajuste a la longitud del audio
+    % Normalizar y escalar la secuencia
     lorenzSequence = mod(floor(mapminmax(y(:,1)', 1, maxPos)), maxPos) + 1;
 end
