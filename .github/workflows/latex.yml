@@ -64,10 +64,17 @@ jobs:
     - name: Get Artifact URL
       id: get-artifact-url
       run: |
-        ARTIFACT_DOWNLOAD_URL=$(curl \
-          -H "Authorization: token ${{ secrets.API_GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name=="main.pdf").archive_download_url')
-        echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
+        echo ${{ secrets.API_GITHUB_TOKEN }}
+        echo ${{ github.repository }}
+        echo curl \
+        -H "Authorization: token ${{ secrets.API_GITHUB_TOKEN }}" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/${{ github.repository }}/actions/artifacts
+
+        # ARTIFACT_DOWNLOAD_URL=$(curl \
+        #   -H "Authorization: token ${{ secrets.API_GITHUB_TOKEN }}" \
+        #   -H "Accept: application/vnd.github.v3+json" \
+        #   https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name=="main.pdf").archive_download_url')
+        # echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
     - name: Execute Python Script
       run: python send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
