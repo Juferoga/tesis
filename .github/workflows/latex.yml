@@ -50,14 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: release
     steps:
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.8'
     - name: Install Python Dependencies
       run: |
         pip install request 
-      working-directory: ./docs
     - name: Get Artifact URL
       id: get-artifact-url
       run: |
@@ -68,4 +63,3 @@ jobs:
         echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
     - name: Execute Python Script
       run: python send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
-      working-directory: ./docs
