@@ -33,14 +33,14 @@ jobs:
       working-directory: ./docs
 
     - name: Compile LaTeX Document
-      run: latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f thesis.tex
+      run: latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f main.tex
       working-directory: ./docs
 
     - name: Upload PDF
       uses: actions/upload-artifact@v2
       with:
-        name: thesis.pdf
-        path: docs/thesis.pdf
+        name: main.pdf
+        path: docs/main.pdf
 
     - name: Set up Python
       uses: actions/setup-python@v2
