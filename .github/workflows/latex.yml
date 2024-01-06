@@ -76,5 +76,7 @@ jobs:
         #   -H "Accept: application/vnd.github.v3+json" \
         #   https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name=="main.pdf").archive_download_url')
         # echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
+    - name: ls :v
+      run: ls -R
     - name: Execute Python Script
       run: python send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
