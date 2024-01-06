@@ -70,15 +70,10 @@ jobs:
     - name: Get Artifact URL
       id: get-artifact-url
       run: |
-        echo curl \
-        -H "Authorization: token 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" \
-        -H "Accept: application/vnd.github.v3+json" \
-        https://api.github.com/repos/${{ github.repository }}/actions/artifacts
-
         ARTIFACT_DOWNLOAD_URL=$(curl \
           -H "Authorization: token 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" \
           -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name=="main.pdf").archive_download_url')
+          https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[0] | select(.name=="main.pdf").archive_download_url')
         
         echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
     - name: ls :v
