@@ -1,44 +1,34 @@
 name: Build and Send LaTeX Document
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   build:
     name: Construccion
     runs-on: ubuntu-latest
-
     container:
       image: adnrv/texlive:tools
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
     - name: Change to docs directory
       run: cd docs
-
     - name: Remove Old PDF
       run: rm -rf *.pdf
       working-directory: ./docs
-
     - name: Clear LaTeX Files
       run: latexmk -c -C
       working-directory: ./docs
-
     - name: Compile LaTeX Document
       run: |
         ls 
         latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f main.tex
       working-directory: ./docs
-
     - name: Upload PDF
       uses: actions/upload-artifact@v2
       with:
@@ -50,30 +40,32 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Descargar artefactos
-        uses: actions/download-artifact@v3
-        with:
-          name: main.pdf
-        
+    - name: Descargar artefactos
+      uses: actions/download-artifact@v3
+      with:
+        name: main.pdf
+
   notification:
     name: Notificacion
     runs-on: ubuntu-latest
-    needs: release  # Corrected typo here
+    needs: release
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.8'
-
-      - name: ls
-        run: ls; cd docs
-
-      - name: Install Python Dependencies
-        run: |
-          pip install -r requirements.txt 
-        working-directory: ./docs
-
-      - name: Execute Python Script
-        run: python send_document.py
-        working-directory: ./docs
-      
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8'
+    - name: Install Python Dependencies
+      run: |
+        pip install -r requirements.txt 
+      working-directory: ./docs
+    - name: Get Artifact URL
+      id: get-artifact-url
+      run: |
+        ARTIFACT_DOWNLOAD_URL=$(curl \
+          -H "Authorization: token ${{ secrets.API_GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r '.artifacts[] | select(.name=="main.pdf").archive_download_url')
+        echo "::set-output name=artifact_url::$ARTIFACT_DOWNLOAD_URL"
+    - name: Execute Python Script
+      run: python send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
+      working-directory: ./docs
