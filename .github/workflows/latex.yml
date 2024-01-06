@@ -45,7 +45,7 @@ jobs:
         name: main.pdf
         path: docs/main.pdf
         
-  realease:
+  release:
     name: Despliegue
     runs-on: ubuntu-latest
     needs: build
