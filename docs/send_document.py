@@ -19,5 +19,7 @@ group_id  = "647870240"
 artifact_url = os.getenv('ARTIFACT_URL')  # Necesitas configurar esto en GitHub Actions
 message = f"¡Hola, Grupo! Aquí está el documento: {artifact_url}"
 
+print(bot_token+group_id+artifact_url+message)
+
 # Enviar mensaje de texto
 send_telegram_message(group_id, message, bot_token)
