@@ -62,12 +62,12 @@ jobs:
   notification:
     name: Notificacion
     runs-on: ubuntu-latest
-    needs: realease
+    needs: release  # Corrected typo here
     steps:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.8'  # O especifica una versión concreta, por ejemplo '3.8'
+          python-version: '3.8'
 
       - name: Install Python Dependencies
         run: |
@@ -77,3 +77,4 @@ jobs:
       - name: Execute Python Script
         run: python send_document.py
         working-directory: ./docs
+      
