@@ -43,17 +43,33 @@ jobs:
       with:
         name: main.pdf
         path: docs/main.pdf
+        
+  realease:
+    name: Despliegue
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Descargar artefactos
+        uses: actions/download-artifact@v3
+        with:
+          name: pdf-file
+      - name: Test descarga artefacto
+        run: ls -R
+        
+  notification:
+    name: Notificacion
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'  # O especifica una versión concreta, por ejemplo '3.8'
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@v2
-    #   with:
-    #     python-version: '3.8'  # O especifica una versión concreta, por ejemplo '3.8'
+      - name: Install Python Dependencies
+        run: |
+          pip install -r requirements.txt 
+        working-directory: ./docs
 
-    # - name: Install Python Dependencies
-    #   run: |
-    #     pip install -r requirements.txt 
-    #   working-directory: ./docs
-
-    # - name: Execute Python Script
-    #   run: python send_document.py
-    #   working-directory: ./docs
+      - name: Execute Python Script
+        run: python send_document.py
+        working-directory: ./docs
