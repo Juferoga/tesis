@@ -59,6 +59,7 @@ jobs:
   notification:
     name: Notificacion
     runs-on: ubuntu-latest
+    needs: realease
     steps:
       - name: Set up Python
         uses: actions/setup-python@v3
