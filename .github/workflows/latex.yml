@@ -85,4 +85,4 @@ jobs:
     - name: ls :v
       run: ls -R
     - name: Execute Python Script
-      run: python send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
+      run: python ./docs/send_document.py ${{ steps.get-artifact-url.outputs.artifact_url }}
