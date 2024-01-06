@@ -51,7 +51,7 @@ jobs:
 
     - name: Install Python Dependencies
       run: |
-        pip install -r docs/requirements.txt 
+        pip install -r requirements.txt 
       working-directory: ./docs
 
     - name: Execute Python Script
