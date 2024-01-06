@@ -29,7 +29,9 @@ jobs:
       working-directory: ./docs
 
     - name: Clear LaTeX Files
-      run: latexmk -c -C
+      run: |
+        ls 
+        latexmk -c -C
       working-directory: ./docs
 
     - name: Compile LaTeX Document
