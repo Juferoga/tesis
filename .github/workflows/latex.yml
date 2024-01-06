@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    name: Construccion
     runs-on: ubuntu-latest
 
     container:
@@ -49,11 +50,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Test [exist] descarga artefacto
+        run: ls -R
       - name: Descargar artefactos
         uses: actions/download-artifact@v3
         with:
-          name: pdf-file
-      - name: Test descarga artefacto
+          name: main.pdf
+      - name: Test [can] descarga artefacto
         run: ls -R
         
   notification:
