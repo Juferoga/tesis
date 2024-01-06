@@ -12,8 +12,8 @@ def send_telegram_message(chat_id, text, token):
     return response.json()
 
 # Token del bot y ID del grupo desde variables de entorno
-bot_token = os.getenv('TELEGRAM_API_TOKEN')
-group_id = os.getenv('TELEGRAM_GROUP_ID')
+bot_token = "6764398994:AAFKMbF5Quvm-arhMPerSiuBMye-xK1vhG8"
+group_id  = "647870240"
 
 # Mensaje a enviar con enlace para descargar el artefacto
 artifact_url = os.getenv('ARTIFACT_URL')  # Necesitas configurar esto en GitHub Actions
