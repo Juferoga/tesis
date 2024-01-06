@@ -1,0 +1,139 @@
+\documentclass[12pt,a4paper]{report}
+\setlength\textwidth{145mm}
+\setlength\textheight{247mm}
+\setlength\oddsidemargin{15mm}
+\setlength\evensidemargin{15mm}
+\setlength\topmargin{0mm}
+\setlength\headsep{0mm}
+\setlength\headheight{0mm}
+
+\setcounter{secnumdepth}{6}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{subfig}  
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{datetime}
+\usepackage[table,xcdraw]{xcolor}
+
+\usepackage{amsthm}
+\usepackage{hyperref}
+
+
+\renewcommand{\contentsname}{Contenido}
+\makeatletter
+\def\@makechapterhead#1{
+  {
+    \parindent \z@ \raggedright \normalfont
+    \Huge\bfseries \thechapter. #1
+    \par\nobreak
+    \vskip 20\p@
+  }
+}
+\def\@makeschapterhead#1{
+  {
+    \parindent \z@ \raggedright \normalfont
+    \Huge\bfseries #1
+    \par\nobreak
+    \vskip 20\p@
+  }
+}
+\makeatother
+
+\def\chapwithtoc#1{
+  \chapter*{#1}
+  \addcontentsline{toc}{chapter}{#1}
+}
+
+\begin{document}
+
+  \pagestyle{empty}
+  \begin{center}
+
+    \large{Universidad Distrital Francisco Jos\'e de Caldas}
+    
+    \medskip{Facultad de ingeniería}
+
+    \vfill
+    {\bf\Large }
+
+    \vfill
+    \begin{figure}[h]
+      \centering
+      \vspace{5mm}	% Adjust vertical spacing here
+      \includegraphics[width=0.7\linewidth]{ima/logoud_0_php7YvUJr}
+    \end{figure}
+
+    \vfill
+    \vspace{5mm}
+    {\large Juan Felipe Rodr\'iguez Galindo}
+
+    \vspace{5mm}
+    {\large\bfseries Modelo de un criptosistema esteganogr\'afico a través de audio basado en redes neuronales y atractores ca\'oticos para el cifrado de im\'agenes}
+
+    \vfill
+    Bogotá D.C.
+
+    \vfill
+    \date{\today}
+  \end{center}
+
+  \newpage
+
+  \pagestyle{empty}
+  \begin{center}
+
+    \large
+    Universidad Distrital Francisco Jos\'e de Caldas
+    
+    \medskip
+    Facultad de ingeniería
+
+    \vfill
+    \vspace{5mm}
+    {\large Juan Felipe Rodríguez Galindo}
+
+    \vspace{15mm}
+    {\large\bfseries Modelo de un criptosistema esteganogr\'afico a través de audio basado en redes neuronales y atractores ca\'oticos para el cifrado de im\'agenes}
+
+    \vfill
+    Anteproyecto de grado presentado como requisito parcial para optar al título de Ingeniero de Sistemas
+
+    \vfill
+    Directoras: \\
+    \vspace{5mm}
+    Edilma Isabel Amaya Barrera\\
+    Magister en Ciencias Matemáticas\\
+    \vspace{3mm}
+    Luz Deicy Alvarado Nieto\\
+    Doctora en Ciencias de la Computación e Inteligencia Artificial\\
+    \vfill
+    %Firma:\rule{50mm}{0.1mm}\\
+    Modalidad:  Monografía \\
+    \vfill
+    Grupo de investigación Complex UD \\
+
+    \vfill
+    \date{\today}
+  \end{center}
+
+  \newpage
+
+  \pagestyle{plain}
+  \setcounter{page}{1}
+  \tableofcontents{}
+
+  \include{preface}
+  \include{name}
+  \include{chap1}
+  \include{chap2}
+  \include{chap3}
+  \include{chap4}
+  \include{chap5}
+  \include{chap6}
+  \include{chap7}
+  \include{chap8}
+  \include{chap9}
+  \include{bibliography}
+\end{document}

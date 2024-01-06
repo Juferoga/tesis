@@ -1,0 +1,55 @@
+name: Build and Send LaTeX Document
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: adnrv/texlive:tools
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Change to docs directory
+      run: cd docs
+
+    - name: Remove Old PDF
+      run: rm -rf *.pdf
+      working-directory: ./docs
+
+    - name: Clear LaTeX Files
+      run: latexmk -c -C
+      working-directory: ./docs
+
+    - name: Compile LaTeX Document
+      run: latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f main.tex
+      working-directory: ./docs
+
+    - name: Upload PDF
+      uses: actions/upload-artifact@v2
+      with:
+        name: main.pdf
+        path: docs/main.pdf
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # O especifica una versión concreta, por ejemplo '3.8'
+
+    - name: Install Python Dependencies
+      run: |
+        pip install -r docs/requirements.txt 
+      working-directory: ./docs
+
+    - name: Execute Python Script
+      run: python send_document.py
+      working-directory: ./docs
