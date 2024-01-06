@@ -29,13 +29,13 @@ jobs:
       working-directory: ./docs
 
     - name: Clear LaTeX Files
-      run: |
-        ls 
-        latexmk -c -C
+      run: latexmk -c -C
       working-directory: ./docs
 
     - name: Compile LaTeX Document
-      run: latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f main.tex
+      run: |
+        ls 
+        latexmk -e '$max_repeat=10' -synctex=1 -interaction=nonstopmode -file-line-error -pdf -f main.tex
       working-directory: ./docs
 
     - name: Upload PDF
