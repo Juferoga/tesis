@@ -50,6 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: release
     steps:
+    ## Checkout might necesary?
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Change to docs directory
+      run: cd docs
+
     - name: Install Python Dependencies
       uses: actions/setup-python@v2
       with:
