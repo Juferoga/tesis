@@ -44,16 +44,16 @@ jobs:
         name: main.pdf
         path: docs/main.pdf
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'  # O especifica una versión concreta, por ejemplo '3.8'
+    # - name: Set up Python
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: '3.8'  # O especifica una versión concreta, por ejemplo '3.8'
 
-    - name: Install Python Dependencies
-      run: |
-        pip install -r requirements.txt 
-      working-directory: ./docs
+    # - name: Install Python Dependencies
+    #   run: |
+    #     pip install -r requirements.txt 
+    #   working-directory: ./docs
 
-    - name: Execute Python Script
-      run: python send_document.py
-      working-directory: ./docs
+    # - name: Execute Python Script
+    #   run: python send_document.py
+    #   working-directory: ./docs
