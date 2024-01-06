@@ -1,5 +1,6 @@
 import requests
 import os
+import sys
 
 def send_telegram_message(chat_id, text, token):
     """Envía un mensaje de texto a un chat de Telegram."""
@@ -15,11 +16,14 @@ def send_telegram_message(chat_id, text, token):
 bot_token = "6764398994:AAFKMbF5Quvm-arhMPerSiuBMye-xK1vhG8"
 group_id  = "647870240"
 
-# Mensaje a enviar con enlace para descargar el artefacto
-artifact_url = os.getenv('ARTIFACT_URL')  # Necesitas configurar esto en GitHub Actions
-message = f"¡Hola, Grupo! Aquí está el documento: {artifact_url}"
+# Obtener la URL del artefacto desde argumentos de línea de comandos
+if len(sys.argv) > 1:
+    artifact_url = sys.argv[1]
+else:
+    artifact_url = "URL del artefacto no proporcionada"
 
-print(bot_token+group_id+artifact_url+message)
+# Mensaje a enviar con enlace para descargar el artefacto
+message = f"¡Hola, Grupo! Aquí está el documento: {artifact_url}"
 
 # Enviar mensaje de texto
 send_telegram_message(group_id, message, bot_token)
