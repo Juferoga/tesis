@@ -1,5 +1,6 @@
 import wave
 import numpy as np
+from src.utils.utils import get_least_significant_bits
 
 def cargar_archivo_wav(filename):
   with wave.open(filename, 'rb') as wav_file:
@@ -23,7 +24,3 @@ def insertar_mensaje_segmento_lsb(segment_array, message_bits, num_least_signifi
     modified_sample = int(modified_sample_bin, 2)
     modified_segment_array[i] = modified_sample
   return modified_segment_array
-
-def get_least_significant_bits(segment_array, num_bits=1):
-  least_significant_bits = [format(sample, 'b')[-num_bits:] for sample in segment_array]
-  return least_significant_bits
