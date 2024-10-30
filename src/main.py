@@ -3,7 +3,7 @@
 #from compresion.descomprimir import descomprimir
 
 # Encriptado de texto
-# from src.encriptado.encriptar import encriptar
+from src.encriptado.encriptar import xor_encriptado
 # from src.encriptado.desencriptar import desencriptar
 
 # Esteganografía en señales de audio
@@ -12,6 +12,12 @@ from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb
 
 # Graficación de señales de audio
 from src.utils.graficas import plot_audio_waveforms
+
+# Generar llave de encriptación
+from src.utils.utils import generate_key
+
+# Enums configuraciones
+from src.utils.chaos_mod_enum import ChaosMod
 
 import numpy as np
 import wave
@@ -31,10 +37,23 @@ with wave.open(ruta_audio, 'rb') as wav_file:
 mensaje = "Juferoga"
 ## Compresión del mensaje
 
-# Encriptando el mensaje
-# mensaje = encriptar(mensaje)
 
-mensaje_bits = ''.join([format(ord(char), '08b') for char in str(mensaje)])
+# Encriptando el mensaje
+mensaje_en_bytes = np.array([ord(char) for char in mensaje], dtype=np.uint8)
+longitud_de_llave = len(mensaje_en_bytes)
+llave = generate_key(
+  ChaosMod.X0.value, 
+  ChaosMod.R.value, 
+  ChaosMod.N_WARMUP.value, 
+  longitud_de_llave)
+mensaje_encriptado = xor_encriptado(mensaje_en_bytes, llave)
+print("TIPO MENSAJE ENCRIPTADO",type(mensaje_encriptado))
+print(f"Mensaje encriptado: {mensaje_encriptado}")
+
+mensaje_para_paso = "".join([chr(b) for b in mensaje_encriptado])
+print(f"MENSAJE PARA PASO: {mensaje_para_paso}")
+
+mensaje_bits = ''.join([format(ord(char), '08b') for char in str(mensaje_para_paso)])
 print(f"Mensaje en bits: {mensaje_bits}")
 
 # Calcular el punto medio del audio en número de muestras
@@ -69,9 +88,13 @@ extraccion_correcta = mensaje_bits == bits_extraidos
 print(f"Extracción correcta: {extraccion_correcta} \n Mensaje extraído: {mensaje_extraido}")
 
 if (extraccion_correcta):
-  pass
   # Desencriptar mensaje
-  
+  print("Mensaje encriptado: ", mensaje_extraido)
+  mensaje_original_bytes = np.array([ord(c) for c in mensaje_para_paso], dtype=np.uint8)
+  print("Mensaje original en bytes:", mensaje_original_bytes)
+  mensaje_desencriptado_bytes = xor_encriptado(mensaje_original_bytes, llave)
+  mensaje_desencriptado = "".join([chr(b) for b in mensaje_desencriptado_bytes])
+  print(f"Mensaje desencriptado: {mensaje_desencriptado}")  
 
 # Imágenes
 #plot_audio_waveforms(arreglo_segmento_original, arreglo_segmento_modificado, 0, len(arreglo_segmento_original))
