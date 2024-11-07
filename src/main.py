@@ -10,10 +10,10 @@ from src.esteganografiado.esteganografiar import cargar_archivo_wav, guardar_arc
 from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb
 
 # Graficación de señales de audio
-from src.utils.graficas import plot_audio_waveforms
+from src.utils.graficas import plot_audio_waveforms, plot_audio_histograms, plot_audio_spectrograms, plot_audio_waveforms_librosa
 
 # Generar llave de encriptación
-from src.utils.utils import generate_key
+from src.utils.caos import generar_llave
 
 # Enums configuraciones
 from src.utils.chaos_mod_enum import ChaosMod
@@ -51,17 +51,14 @@ Etiam a iaculis risus. Etiam aliquet, lectus non rutrum convallis, nisi nisl sod
 # Encriptando el mensaje
 mensaje_en_bytes = np.array([ord(char) for char in mensaje], dtype=np.uint8)
 longitud_de_llave = len(mensaje_en_bytes)
-llave = generate_key(
+llave = generar_llave(
   ChaosMod.X0.value, 
   ChaosMod.R.value, 
   ChaosMod.N_WARMUP.value, 
   longitud_de_llave)
+
 mensaje_encriptado = xor_encriptado(mensaje_en_bytes, llave)
-
 mensaje_para_paso = "".join([chr(b) for b in mensaje_encriptado])
-
-print(f"Mensaje ENCRIPTADO: {mensaje_para_paso}")
-
 mensaje_bits = ''.join([format(ord(char), '08b') for char in str(mensaje_para_paso)])
 
 # Calcular el punto medio del audio en número de muestras
@@ -99,7 +96,9 @@ if (extraccion_correcta):
   mensaje_original_bytes = np.array([ord(c) for c in mensaje_para_paso], dtype=np.uint8)
   mensaje_desencriptado_bytes = xor_encriptado(mensaje_original_bytes, llave)
   mensaje_desencriptado = "".join([chr(b) for b in mensaje_desencriptado_bytes])
-  print(f"Mensaje desencriptado: {mensaje_desencriptado}")  
 
 # Imágenes
 #plot_audio_waveforms(arreglo_segmento_original, arreglo_segmento_modificado, 0, len(arreglo_segmento_original))
+#plot_audio_histograms(arreglo_segmento_original, arreglo_segmento_modificado, 0, len(arreglo_segmento_original))
+#plot_audio_spectrograms(ruta_audio, ruta_audio_modificado, inicio_segmento, fin_segmento)
+#plot_audio_waveforms_librosa(ruta_audio, ruta_audio_modificado, inicio_segmento, fin_segmento)

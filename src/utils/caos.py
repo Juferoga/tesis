@@ -1,23 +1,38 @@
 import numpy as np
 
-def mapa_logistico(x, r):
-  # Mapa logístico: x_{n+1} = r * x_n * (1 - x_n)
-  # x: Valor actual
-  # r: Parámetro de caos
-  # Retornar el valor siguiente
+def mapa_logistico(x=8, r=3.99):
+  """Mapa logístico para generar una secuencia de números pseudoaleatorios en el rango [0, 1] utilizando un valor inicial y un parámetro de caos.
+    Función utilizada: x_{n+1} = r * x_n * (1 - x_n)
+
+  Args:
+      x (int, optional): valor actual. Defaults to 8.
+      r (float, optional): parámetro de caos. Defaults to 3.99.
+
+  Returns:
+      float: valor siguiente en la secuencia de números pseudoaleatorios
+  """
   return r * x * (1 - x)
 
-def generar_llave(length, x0=0.123456, r=3.999952, n_warmup=100):
-  # Generar una llave aleatoria utilizando el mapa logístico
+def generar_llave(x0, r, n_warmup, length):
+  """Generar una llave aleatoria utilizando el mapa logístico
+
+  Args:
+      x0 (float): valor inicial del mapa logístico (rango: [0, 1])
+      r (float): parámetro de caos del mapa logístico (rango: [3.57, 4])
+      n_warmup (float): Número de iteraciones para calentar el sistema (alcanzar el estado de equilibrio)
+      length (int): Longitud de la llave en bytes
+
+  Returns:
+      array: Arreglo de bytes con la llave aleatoria generada por el mapa logístico.
+  """
   key_bits = []
-  # Inicializar el valor inicial
   x = x0
-  # Calentar el sistema, descartar los primeros valores para 
-  # que el sistema alcance el estado de equilibrio (caos)
+  # Calentar el sistema, descartar los primeros valores para que el sistema alcance el estado de equilibrio (caos)
   for _ in range(n_warmup):
-      x = mapa_logistico(x, r)
+    # Calcular el siguiente valor del mapa logístico
+    x = mapa_logistico(x, r)
   # Generar la llave aleatoria
-  for _ in range(length * 8):  # *8 to get length in bytes
+  for _ in range(length * 8):
     # Calcular el siguiente valor del mapa logístico
     x = mapa_logistico(x, r)
     # Convertir el valor del mapa logístico a un bit (0 o 1)

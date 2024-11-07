@@ -4,7 +4,14 @@ from src.utils.utils import get_least_significant_bits
 from src.utils.caos import mapa_logistico
 
 def cargar_archivo_wav(filename):
-  # Cargar archivo de audio en formato WAV y retornar un arreglo de numpy con los datos de audio
+  """Cargar un archivo de audio en formato WAV y retornar un arreglo de numpy con los datos de audio.
+
+  Args:
+      filename (str): Ruta del archivo de audio en formato WAV a cargar
+
+  Returns:
+      numpy.array: Arreglo de numpy con los datos de audio del archivo WAV
+  """
   with wave.open(filename, 'rb') as wav_file:
     # Obtener los parámetros del archivo de audio WAV
     n_frames = wav_file.getnframes()
@@ -15,7 +22,13 @@ def cargar_archivo_wav(filename):
   return audio_array
 
 def guardar_archivo_wav(filename, audio_array, params):
-  # Guardar un arreglo de numpy con los datos de audio en un archivo WAV
+  """Guardar un arreglo de numpy con los datos de audio en un archivo WAV.
+
+  Args:
+      filename (str): Ruta del archivo WAV a guardar los datos de audio
+      audio_array (numpy.array): Arreglo de numpy con los datos de audio a guardar
+      params (any): Parámetros del archivo WAV (número de canales, frecuencia de muestreo, profundidad de bits, etc.)
+  """
   with wave.open(filename, 'wb') as wav_file:
     # Establecer los parámetros del archivo WAV (número de canales, frecuencia de muestreo, profundidad de bits, etc.)
     wav_file.setparams(params)
@@ -23,10 +36,20 @@ def guardar_archivo_wav(filename, audio_array, params):
     wav_file.writeframes(audio_array.tobytes())
 
 def insertar_mensaje_segmento_lsb(segment_array, message_bits, num_least_significant_bits=1):
-  # Insertar un mensaje en los bits menos significativos de un arreglo de segmentos de audio
+  """Insertar un mensaje en los bits menos significativos de un arreglo de segmentos de audio.
+
+  Args:
+      segment_array (numpy.array): Arreglo de segmentos de audio en formato de 16 bits (int16)
+      message_bits (str): Cadena de bits con el mensaje a insertar en los segmentos de audio
+      num_least_significant_bits (int, optional): Número de bits menos significativos a utilizar para insertar el mensaje. Defaults to 1.
+
+  Returns:
+      numpy.array: Arreglo de segmentos de audio con el mensaje esteganografiado
+  """
   modified_segment_array = np.copy(segment_array)
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
+  print(f"Tamaño arreglo bits menos significantes: {len(least_significant_bits)}")
   for i in range(len(message_bits)):
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
     sample_bin = format(segment_array[i], 'b').zfill(16)
@@ -34,7 +57,7 @@ def insertar_mensaje_segmento_lsb(segment_array, message_bits, num_least_signifi
     lsb = least_significant_bits[i]
     # Reemplazar el bit menos significativo del i-ésimo segmento de audio por el i-ésimo bit del mensaje
     # TODO: Por hacer
-    # TODO: Agregar aleatoriedad en el guardado con base en posiciónes aleatorias en el mensaje 
+    # TODO: Agregar aleatoriedad en el guardado con base en posiciones aleatorias en el mensaje 
     # TODO: y esa posición aleatoria del mensaje se guarda en el audio
     # TODO: La misma pero con una condición inicial diferente en el mapa logístico
     modified_sample_bin = sample_bin[:-len(lsb)] + message_bits[i]
@@ -42,11 +65,4 @@ def insertar_mensaje_segmento_lsb(segment_array, message_bits, num_least_signifi
     modified_sample = int(modified_sample_bin, 2)
     # Actualizar el i-ésimo segmento de audio en el arreglo de segmentos de audio modificados
     modified_segment_array[i] = modified_sample
-    # if segment_array[i] != modified_sample:
-    #   print(f']-----------------[{i}]------------------[')
-    #   print(f"org_sample_bin: {sample_bin}")
-    #   print(f"mod_sample_bin: {modified_sample_bin}")
-      # print(']---------------------------------------[')
-      # print(f"segment_array[i]: {segment_array[i]}")
-      # print(f"modified_sample: {modified_sample}")
   return modified_segment_array
