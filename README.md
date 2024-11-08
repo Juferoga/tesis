@@ -10,7 +10,7 @@ Instrucciones para instalar y configurar el proyecto.
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/tu-proyecto.git
+git clone https://github.com/jufeoga/tesis.git
 
 # Entrar al directorio del proyecto
 cd scripts
@@ -34,6 +34,15 @@ python -m src.main
 - **Esteganografía en señales de audio**: Inserta y extrae mensajes ocultos en señales de audio.
 - **Graficación de señales de audio**: Visualiza formas de onda, histogramas y espectrogramas de audio.
 - **Generación de llaves de encriptación**: Genera llaves de encriptación basadas en caos.
+
+## Pasos siguientes
+
+Convertir el app en una función lambda para aws permitiendo peticiones http desde un front para el use desde cualquier parte.
+
+- **Infraestructura**: S3, para ell almacenamiento estático de archivos que se vayan a manipular a lo largo del proceso. Lambda, para almacenar la función realizada en fast api.
+- **Terraform**: Con el uso de terraform crear la infraestructura como código para el despliegue del aplicativo en la nube.
+- **API**: Con FastAPI generar los endpoints para realizar el proceso de esteganográfico.
+- **Github Actions**: Para el manejo de pruebas y estadísticas automáticas del aplicativo, despliegue y puesta en producción del app.
 
 ## Contribución
 
