@@ -38,6 +38,7 @@ def extraer_mensaje_segmento_lsb_random(segment_array, message_length, num_least
   extracted_bits = []
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
   
+  # TODO: Implementar la extracción aleatoria del mensaje en los bits menos significativos de los segmentos de audio :v
   for _ in range(message_length):
     # Posición aleatoria dada por el mapa logístico
     pos = int(mapa_logistico() * len(least_significant_bits))

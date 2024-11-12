@@ -52,7 +52,7 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
   modified_segment_array = np.copy(segment_array)
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
-  print(f"Tamaño arreglo bits menos significantes: {len(least_significant_bits)}")
+  print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
   print(f"Tamaño mensaje: {len(message_bits)}")
   
   if len(least_significant_bits) < len(message_bits):
@@ -88,7 +88,7 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
   modified_segment_array = np.copy(segment_array)
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
-  print(f"Tamaño arreglo bits menos significantes: {len(least_significant_bits)}")
+  print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
   print(f"Tamaño mensaje: {len(message_bits)}")
   
   if len(least_significant_bits) < len(message_bits):

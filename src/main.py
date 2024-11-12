@@ -9,8 +9,9 @@ from src.encriptado.encriptar import xor_encriptado
 from src.esteganografiado.esteganografiar import cargar_archivo_wav, guardar_archivo_wav, insertar_mensaje_segmento_lsb_sequential, insertar_mensaje_segmento_lsb_random
 from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb_sequential, extraer_mensaje_segmento_lsb_random
 
-# Graficación de señales de audio
+# Graficación de señales de audio y métricas
 from src.utils.graficas import plot_audio_waveforms, plot_audio_histograms, plot_audio_spectrograms
+from src.utils.metricas import mse_psnr, distorsion, invisibilidad, entropia, correlacion_cruzada, analisis_componentes, autocorrelacion, tasa_distorsion_armonica_total
 
 # Generar llave de encriptación
 from src.utils.caos import generar_llave
@@ -113,6 +114,17 @@ def main():
   # plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
   # plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
   # plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
+  
+  # Métricas
+  print("------------Métricas------------")
+  mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
+  distorsion(arreglo_audio_original, arreglo_audio_modificado)
+  invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
+  entropia(arreglo_audio_original, arreglo_audio_modificado)
+  correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
+  #autocorrelacion(arreglo_audio_original, arreglo_audio_modificado)
+  analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
+  
 
 if __name__ == "__main__":
   main()
