@@ -118,11 +118,17 @@ def entropia(audio_original, audio_modificado):
     Returns:
         float: Valor de la entropía de los dos audios
     """
+    # ! Consultar el valor maximo y minimo de entropia en audios, 
+    # ? Cómo se codifica el audio, como se almacena la información de un audio
+    # ? Ejemplo en imagenes es en 8 bits
+    
     # Filtrar valores cero y negativos
     audio_original = np.where(audio_original > 0, audio_original, 1e-10)
     audio_modificado = np.where(audio_modificado > 0, audio_modificado, 1e-10)
 
     # Calcular la entropía
+    # ! probabilidad_audio_original = audio_original / np.sum(audio_original)
+    # ! probabilidad_audio_modificado = audio_modificado / np.sum(audio_modificado)
     entropia_original = np.sum(-audio_original * np.log2(audio_original))
     entropia_modificado = np.sum(-audio_modificado * np.log2(audio_modificado))
     

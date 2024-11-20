@@ -59,6 +59,7 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
   
   for i in range(len(message_bits)):
+    # ! 2 en 16 bits
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
     sample_bin = format(segment_array[i], 'b').zfill(16)
     # Obtener los bits menos significativos del i-ésimo segmento de audio

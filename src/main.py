@@ -11,7 +11,7 @@ from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb
 
 # Graficación de señales de audio y métricas
 from src.utils.graficas import plot_audio_waveforms, plot_audio_histograms, plot_audio_spectrograms
-from src.utils.metricas import mse_psnr, distorsion, invisibilidad, entropia, correlacion_cruzada, analisis_componentes, autocorrelacion, tasa_distorsion_armonica_total
+from src.utils.metricas import mse_psnr, distorsion, invisibilidad, entropia, correlacion_cruzada, analisis_componentes
 
 # Generar llave de encriptación
 from src.utils.caos import generar_llave
@@ -94,6 +94,18 @@ def main():
 
   # Mensaje a insertar
   mensaje = "Juferoga"
+  mensaje = """ Juferoga
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque pellentesque pulvinar urna id vestibulum. Nulla pharetra sagittis tempus. Aliquam et hendrerit leo, interdum posuere ipsum. Ut pellentesque tristique urna. Suspendisse potenti. Nullam id ex tincidunt, pellentesque arcu sed, bibendum lacus. Aliquam erat volutpat. Cras viverra eros eget sapien feugiat, in pulvinar eros maximus. In quam metus, faucibus id semper sit amet, tincidunt ac urna. Nam sodales massa sit amet magna interdum, id egestas orci lobortis. Cras vulputate imperdiet dui, sit amet hendrerit enim tempus id. Aliquam consequat elit eget ultricies malesuada. Nam nec accumsan justo, pellentesque ultrices libero. Quisque turpis quam, sagittis vitae egestas non, lacinia ac erat. Curabitur facilisis ultrices quam, ut mollis magna laoreet sed.
+
+    Aenean sit amet auctor nulla. Integer efficitur ex congue, viverra magna non, sodales nibh. Etiam odio massa, sollicitudin pharetra lobortis eu, porta nec lectus. Nulla consectetur vel augue lacinia dignissim. In ac rutrum nibh. Sed convallis quam iaculis, dictum magna at, ullamcorper ipsum. Nullam pulvinar ultricies egestas. Vestibulum gravida lacus nec neque gravida porta. Duis quam tortor, congue vitae vehicula tempus, finibus vitae ligula. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer id rutrum nibh. Donec a ipsum in odio vestibulum mattis.
+
+    Morbi tristique congue feugiat. Proin sit amet erat accumsan, suscipit nunc eu, efficitur nulla. Etiam at finibus dolor. Aliquam erat volutpat. Proin placerat ut dui non porttitor. Etiam quam risus, varius eu ultricies at, tempus posuere tellus. Praesent vulputate, dui ultrices suscipit vulputate, libero ipsum pretium mi, id sagittis nisi felis quis ipsum. Vivamus lobortis felis felis, id auctor sapien condimentum a. Ut vitae lorem ipsum. Proin tempus commodo elit sed maximus. Curabitur elementum quam eget sapien tincidunt, et cursus neque ornare. Proin augue libero, bibendum vitae pharetra nec, hendrerit sit amet urna.
+
+    Donec consectetur sollicitudin tempus. Aliquam condimentum leo convallis, dictum nisl nec, commodo quam. Pellentesque lobortis sit amet nibh sed pulvinar. Etiam metus enim, auctor vitae orci eget, convallis congue ex. Nulla facilisi. Nulla rutrum tortor sapien, eu vulputate ligula fringilla dictum. Nunc euismod auctor mauris sit amet aliquet. Nulla vitae neque sit amet ipsum dignissim feugiat. In malesuada, magna at tempus porttitor, nulla erat varius nisi, a rhoncus turpis elit vitae lacus. Aliquam congue sagittis purus, nec volutpat tortor luctus non. Sed vestibulum tempor porta. Nulla volutpat ut tortor vitae dictum. Maecenas porttitor venenatis aliquet. Vivamus molestie arcu sed urna venenatis semper. Duis vitae mi et urna fermentum fringilla sed a lectus.
+
+    Nulla luctus semper leo quis fringilla. Sed porta arcu eu dapibus interdum. Nulla sit amet mauris eu mi viverra volutpat. Mauris tortor orci, scelerisque et interdum et, tincidunt non elit. Curabitur ultrices tellus vitae tortor egestas venenatis. Aenean vitae rutrum nulla, ut pharetra neque. Sed nec tellus imperdiet, dapibus tortor a, porttitor ipsum. Etiam eget elementum est. Proin vel suscipit lacus. Cras id orci sit amet tellus consequat interdum. Morbi iaculis est quis nunc vestibulum, id venenatis quam vulputate. 
+    Juferoga
+  """
   mensaje_bits, llave = convertir_mensaje_a_bits(mensaje)
 
   # Insertar mensaje en el audio
@@ -111,9 +123,9 @@ def main():
     print("Error al extraer el mensaje.")
 
   # Imágenes
-  # plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  # plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  # plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
+  plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
   
   # Métricas
   print("------------Métricas------------")
