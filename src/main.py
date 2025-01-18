@@ -1,6 +1,6 @@
 # Compresión de texto
-#from compresion.comprimir import comprimir
-#from compresion.descomprimir import descomprimir
+from src.compresion.comprimir import comprimir
+from src.compresion.descomprimir import descomprimir
 
 # Encriptado de texto
 from src.encriptado.encriptar import xor_encriptado
@@ -93,19 +93,21 @@ def main():
     params = wav_file.getparams()
 
   # Mensaje a insertar
-  mensaje = "Juferoga"
-  mensaje = """ Juferoga
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque pellentesque pulvinar urna id vestibulum. Nulla pharetra sagittis tempus. Aliquam et hendrerit leo, interdum posuere ipsum. Ut pellentesque tristique urna. Suspendisse potenti. Nullam id ex tincidunt, pellentesque arcu sed, bibendum lacus. Aliquam erat volutpat. Cras viverra eros eget sapien feugiat, in pulvinar eros maximus. In quam metus, faucibus id semper sit amet, tincidunt ac urna. Nam sodales massa sit amet magna interdum, id egestas orci lobortis. Cras vulputate imperdiet dui, sit amet hendrerit enim tempus id. Aliquam consequat elit eget ultricies malesuada. Nam nec accumsan justo, pellentesque ultrices libero. Quisque turpis quam, sagittis vitae egestas non, lacinia ac erat. Curabitur facilisis ultrices quam, ut mollis magna laoreet sed.
-
-    Aenean sit amet auctor nulla. Integer efficitur ex congue, viverra magna non, sodales nibh. Etiam odio massa, sollicitudin pharetra lobortis eu, porta nec lectus. Nulla consectetur vel augue lacinia dignissim. In ac rutrum nibh. Sed convallis quam iaculis, dictum magna at, ullamcorper ipsum. Nullam pulvinar ultricies egestas. Vestibulum gravida lacus nec neque gravida porta. Duis quam tortor, congue vitae vehicula tempus, finibus vitae ligula. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer id rutrum nibh. Donec a ipsum in odio vestibulum mattis.
-
-    Morbi tristique congue feugiat. Proin sit amet erat accumsan, suscipit nunc eu, efficitur nulla. Etiam at finibus dolor. Aliquam erat volutpat. Proin placerat ut dui non porttitor. Etiam quam risus, varius eu ultricies at, tempus posuere tellus. Praesent vulputate, dui ultrices suscipit vulputate, libero ipsum pretium mi, id sagittis nisi felis quis ipsum. Vivamus lobortis felis felis, id auctor sapien condimentum a. Ut vitae lorem ipsum. Proin tempus commodo elit sed maximus. Curabitur elementum quam eget sapien tincidunt, et cursus neque ornare. Proin augue libero, bibendum vitae pharetra nec, hendrerit sit amet urna.
-
-    Donec consectetur sollicitudin tempus. Aliquam condimentum leo convallis, dictum nisl nec, commodo quam. Pellentesque lobortis sit amet nibh sed pulvinar. Etiam metus enim, auctor vitae orci eget, convallis congue ex. Nulla facilisi. Nulla rutrum tortor sapien, eu vulputate ligula fringilla dictum. Nunc euismod auctor mauris sit amet aliquet. Nulla vitae neque sit amet ipsum dignissim feugiat. In malesuada, magna at tempus porttitor, nulla erat varius nisi, a rhoncus turpis elit vitae lacus. Aliquam congue sagittis purus, nec volutpat tortor luctus non. Sed vestibulum tempor porta. Nulla volutpat ut tortor vitae dictum. Maecenas porttitor venenatis aliquet. Vivamus molestie arcu sed urna venenatis semper. Duis vitae mi et urna fermentum fringilla sed a lectus.
-
-    Nulla luctus semper leo quis fringilla. Sed porta arcu eu dapibus interdum. Nulla sit amet mauris eu mi viverra volutpat. Mauris tortor orci, scelerisque et interdum et, tincidunt non elit. Curabitur ultrices tellus vitae tortor egestas venenatis. Aenean vitae rutrum nulla, ut pharetra neque. Sed nec tellus imperdiet, dapibus tortor a, porttitor ipsum. Etiam eget elementum est. Proin vel suscipit lacus. Cras id orci sit amet tellus consequat interdum. Morbi iaculis est quis nunc vestibulum, id venenatis quam vulputate. 
-    Juferoga
+  mensaje = """
+    In a quiet seaside town, Clara discovered a message in a bottle washed ashore.
+    The note inside held a plea for help from a stranded sailor named Leo.
+    Determined to assist, Clara gathered the townsfolk, and together they devised a plan.
+    They repaired an old fishing boat and set out to rescue Leo.
+    Upon reaching the deserted island mentioned in the note, they found Leo grateful and marooned for weeks.
+    The island, though remote, was a treasure trove of beauty.
+    Leo shared tales of survival, and the townsfolk shared laughter and camaraderie.
+    When the rescued sailor and the townspeople returned, a newfound bond united them.
+    The once quiet town transformed into a lively community, forever changed by a message in a bottle that bridged the gap between strangers.
   """
+
+  # comprimir mensaje
+  mensaje_comprimido = comprimir(mensaje)
+
   mensaje_bits, llave = convertir_mensaje_a_bits(mensaje)
 
   # Insertar mensaje en el audio
@@ -119,6 +121,8 @@ def main():
   mensaje_desencriptado = extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits, llave)#, False)
   if mensaje_desencriptado:
     print(f"Mensaje desencriptado: {mensaje_desencriptado}")
+    mensaje_descomprimido = descomprimir(mensaje_comprimido)
+    print(f"Mensaje descomprimido: {mensaje_descomprimido}")
   else:
     print("Error al extraer el mensaje.")
 
