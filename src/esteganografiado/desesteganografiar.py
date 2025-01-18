@@ -1,5 +1,6 @@
 from src.utils.utils import get_least_significant_bits
-from src.utils.caos import mapa_logistico
+from src.utils.caos import mapa_logistico, generar_secuencia_aleatoria
+from src.utils.chaos_mod_enum import ChaosMod
 
 def extraer_mensaje_segmento_lsb_sequential(segment_array, message_length, num_least_significant_bits=1):
   """Extraer un mensaje de los bits menos significativos de un arreglo de segmentos de audio. 
@@ -24,29 +25,56 @@ def extraer_mensaje_segmento_lsb_sequential(segment_array, message_length, num_l
   # Retornar los bits extraídos y el mensaje extraído
   return extracted_bits, extracted_message
 
-def extraer_mensaje_segmento_lsb_random(segment_array, message_length, num_least_significant_bits=1):
-  """Extraer un mensaje oculto en los bits menos significativos de un arreglo de segmentos de audio.
-
-  Args:
-      segment_array (numpy.array): Arreglo de segmentos de audio en formato de 16 bits (int16)
-      message_length (int): Longitud del mensaje en bits a extraer
-      num_least_significant_bits (int, optional): Número de bits menos significativos utilizados para insertar el mensaje. Defaults to 1.
-
-  Returns:
-      str: Cadena de bits con el mensaje extraído
-  """
-  extracted_bits = []
-  least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
+def extraer_mensaje_segmento_lsb_random(modified_segment_array, message_length, num_least_significant_bits=1):
+  """Extraer un mensaje oculto en los bits menos significativos de un arreglo de segmentos de audio,
+  utilizando la misma secuencia aleatoria que se usó para insertar el mensaje.
   
-  # TODO: Implementar la extracción aleatoria del mensaje en los bits menos significativos de los segmentos de audio :v
-  for _ in range(message_length):
-    # Posición aleatoria dada por el mapa logístico
-    pos = int(mapa_logistico() * len(least_significant_bits))
-    # Obtener los bits menos significativos del segmento de audio en la posición aleatoria
-    lsb = least_significant_bits[pos]
-    # Agregar el bit menos significativo a la lista de bits extraídos
-    extracted_bits.append(lsb[-1])
+  Args:
+    modified_segment_array (numpy.array): Arreglo de segmentos de audio modificado con el mensaje oculto
+    message_length (int): Longitud del mensaje a extraer en bits
+    num_least_significant_bits (int, optional): Número de bits menos significativos usados para ocultar el mensaje. Por defecto es 1.
+  
+  Returns:
+    tuple: Tupla que contiene la cadena de bits extraídos y el mensaje original en texto
+  """
+  # Obtener los bits menos significativos de cada segmento de audio modificado
+  least_significant_bits = get_least_significant_bits(modified_segment_array, num_least_significant_bits)
+  
+  print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
+  # Generar la misma secuencia aleatoria utilizada para insertar el mensaje
+  secuencia_aleatoria = generar_secuencia_aleatoria(
+    ChaosMod.X0.value,
+    ChaosMod.R.value,
+    ChaosMod.N_WARMUP.value,
+    0,
+    message_length,
+    'int'
+  )
+  
+  print("Secuencia aleatoria", secuencia_aleatoria)
+  
+  # Extraer los bits del mensaje de los segmentos de audio en las posiciones aleatorias
+  extracted_bits_list = []
+  for i, bit_index in enumerate(secuencia_aleatoria):
+    # Asegurarse de que el índice no exceda el tamaño del arreglo
+    if bit_index < len(least_significant_bits):
+      # Obtener el bit menos significativo en la posición aleatoria
+      lsb = least_significant_bits[bit_index]
+      # Agregar el bit extraído a la lista
+      extracted_bits_list.append(lsb)
+      # Imprimir el índice del bit, el LSB y la cadena de bits extraídos hasta el momento
+      print(f"Bit index: {bit_index} - LSB: {lsb} - Sample bin: {''.join(extracted_bits_list)}")
+    else:
+      print(f"Índice fuera de rango: {bit_index}")
+      break
   
   # Unir los bits extraídos en una cadena
-  message_bits = ''.join(extracted_bits)
-  return message_bits
+  extracted_bits = ''.join(extracted_bits_list)
+  print("Bits extraídos", extracted_bits)
+  
+  # Convertir los bits extraídos a caracteres (cada 8 bits forman un carácter)
+  extracted_message = ''.join([chr(int(extracted_bits[i:i+8], 2)) for i in range(0, len(extracted_bits), 8)])
+  print("Mensaje extraído", extracted_message)
+  
+  # Retornar los bits extraídos y el mensaje extraído
+  return extracted_bits, extracted_message

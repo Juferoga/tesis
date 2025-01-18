@@ -109,7 +109,7 @@ def main():
   mensaje_bits, llave = convertir_mensaje_a_bits(mensaje)
 
   # Insertar mensaje en el audio
-  arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(arreglo_audio_original, mensaje_bits, True)#, False)
+  arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(arreglo_audio_original, mensaje_bits)#, False, False)
 
   # Guardar el archivo de audio modificado
   ruta_audio_modificado = os.path.join(os.getcwd(), "data/audio_test_modificado.wav")
@@ -123,19 +123,19 @@ def main():
     print("Error al extraer el mensaje.")
 
   # Imágenes
-  plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
+  # plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  # plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  # plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
   
   # Métricas
   print("------------Métricas------------")
-  mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
-  distorsion(arreglo_audio_original, arreglo_audio_modificado)
+  # mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
+  # distorsion(arreglo_audio_original, arreglo_audio_modificado)
   invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
   entropia(arreglo_audio_original, arreglo_audio_modificado)
-  correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
+  # correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
   #autocorrelacion(arreglo_audio_original, arreglo_audio_modificado)
-  analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
+  # analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
   
 
 if __name__ == "__main__":

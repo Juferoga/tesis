@@ -1,7 +1,8 @@
 import wave
 import numpy as np
 from src.utils.utils import get_least_significant_bits
-from src.utils.caos import mapa_logistico
+from src.utils.caos import mapa_logistico, generar_secuencia_aleatoria
+from src.utils.chaos_mod_enum import ChaosMod
 
 def cargar_archivo_wav(filename):
   """Cargar un archivo de audio en formato WAV y retornar un arreglo de numpy con los datos de audio.
@@ -59,7 +60,6 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
   
   for i in range(len(message_bits)):
-    # ! 2 en 16 bits
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
     sample_bin = format(segment_array[i], 'b').zfill(16)
     # Obtener los bits menos significativos del i-ésimo segmento de audio
@@ -86,29 +86,45 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
   Raises:
       ValueError: Si el mensaje es muy largo para ser insertado en el audio
   """
+  print("Mensaje original", message_bits)
   modified_segment_array = np.copy(segment_array)
+  
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
   print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
   print(f"Tamaño mensaje: {len(message_bits)}")
+  #print(least_significant_bits)
+  
+  secuencia_aleatoria = generar_secuencia_aleatoria(
+                              ChaosMod.X0.value,
+                              ChaosMod.R.value,
+                              ChaosMod.N_WARMUP.value,
+                              0,
+                              len(message_bits),
+                              'int')
+  
+  print("Secuencia aleatoria generada", secuencia_aleatoria)
+  print("Tamaño secuencia aleatoria", len(secuencia_aleatoria))
+  print("Tamaño segmento", len(segment_array))
   
   if len(least_significant_bits) < len(message_bits):
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
   
-  #  Print del mapa logístico adaptado al tamaño de bits menos significativos, permitiendo una aleatoriedad en la inserción sin repetir
-  #  los valores del mapa logístico
-  for i in range(len(message_bits)):
-    # Posición aleatoria dada por el mapa logístico
-    pos = int(mapa_logistico() * len(least_significant_bits))
-    print(f"Posición: {pos}")
+  # Insertar el mensaje en los bits menos significativos de los segmentos de audio
+  # en las posiciones aleatorias generadas de la secuencia aleatoria
+  for i, bit_index in enumerate(secuencia_aleatoria):
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
-    sample_bin = format(segment_array[pos], 'b').zfill(16)
+    sample_bin = format(segment_array[i], 'b').zfill(16)
     # Obtener los bits menos significativos del i-ésimo segmento de audio
-    lsb = least_significant_bits[pos]
-    # Reemplazar el bit menos significativo del i-ésimo segmento de audio por el i-ésimo bit del mensaje
-    modified_sample_bin = sample_bin[:-len(lsb)] + message_bits[i]
+    lsb = least_significant_bits[i]
+    # Reemplazar el bit menos significativo del i-ésimo segmento de audio por el i-ésimo bit del mensaje    
+    modified_sample_bin = sample_bin[:-len(lsb)] + message_bits[bit_index]
     # Convertir el i-ésimo segmento de audio modificado a entero
     modified_sample = int(modified_sample_bin, 2)
     # Actualizar el i-ésimo segmento de audio en el arreglo de segmentos de audio modificados
-    modified_segment_array[pos] = modified_sample
+    modified_segment_array[i] = modified_sample
+    print(f"Bit index: {bit_index} - LSB: {lsb} - Sample bin: {sample_bin}")
+    
+  print("SEGMENTO MODIFICADO",modified_segment_array)
+  
   return modified_segment_array

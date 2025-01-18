@@ -13,33 +13,35 @@ def mapa_logistico(x=8, r=3.99):
   """
   return r * x * (1 - x)
 
-def generar_secuencia_aleatoria(x0, r, n_warmup, lim_inf, lim_sup):
+def generar_secuencia_aleatoria(x0, r, n_warmup, lim_inf, lim_sup, tipo='float'):
   """Generar una secuencia aleatoria en un rango determinado sin repeticiones utilizando el mapa logístico
 
   Args:
-      x0 (float): valor inicial del mapa logístico (rango: [0, 1])
-      r (float): parámetro de caos del mapa logístico (rango: [3.57, 4])
-      n_warmup (float): Número de iteraciones para calentar el sistema (alcanzar el estado de equilibrio)
-      lim_inf (int): Límite inferior del rango de valores aleatorios
-      lim_sup (int): Límite superior del rango de valores aleatorios
+    x0 (float): valor inicial del mapa logístico (rango: [0, 1])
+    r (float): parámetro de caos del mapa logístico (rango: [3.57, 4])
+    n_warmup (float): Número de iteraciones para calentar el sistema (alcanzar el estado de equilibrio)
+    lim_inf (int): Límite inferior del rango de valores aleatorios
+    lim_sup (int): Límite superior del rango de valores aleatorios
+    tipo (str): Tipo de valores a generar ('float' o 'int'). Defaults to 'float'.
 
   Returns:
-      array: Arreglo de valores aleatorios en el rango [lim_inf, lim_sup]
+    array: Arreglo de valores aleatorios en el rango [lim_inf, lim_sup] sin repeticiones
   """
   secuencia_aleatoria = []
+  valores_generados = set()
   x = x0
-  # Calentar el sistema, descartar los primeros valores para que el sistema alcance el estado de equilibrio (caos)
+  # Calentar el sistema
   for _ in range(n_warmup):
-    # Calcular el siguiente valor del mapa logístico
     x = mapa_logistico(x, r)
-  # Generar la secuencia aleatoria
-  for _ in range(lim_inf, lim_sup):
-    # Calcular el siguiente valor del mapa logístico
+  # Generar la secuencia aleatoria sin repeticiones
+  while len(secuencia_aleatoria) < (lim_sup - lim_inf):
     x = mapa_logistico(x, r)
-    # Convertir el valor del mapa logístico al rango [lim_inf, lim_sup]
     valor = lim_inf + (x * (lim_sup - lim_inf))
-    # Agregar el valor a la secuencia
-    secuencia_aleatoria.append(valor)
+    if tipo == 'int':
+      valor = int(valor)
+    if valor not in valores_generados:
+      valores_generados.add(valor)
+      secuencia_aleatoria.append(valor)
   return secuencia_aleatoria
 
 def generar_llave(x0, r, n_warmup, length):

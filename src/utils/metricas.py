@@ -1,5 +1,9 @@
 import numpy as np
 from scipy.stats import chisquare, ks_2samp, mannwhitneyu
+from math import log, e
+
+# TODO: Implementar tiempos
+# !13 de enero retomamos el proyecto
 
 # función métrica MSE - PSNR de dos audios
 def mse_psnr(audio_original, audio_modificado):
@@ -105,11 +109,15 @@ def invisibilidad(audio_original, audio_modificado):
     #   Similar a chi2_p y ks_p, indica la probabilidad de obtener un estadístico de Mann-Whitney U
     
     return chi2_stat, chi2_p, ks_stat, ks_p, U1, p
-  
+
 # función para la medición de la entropia en el audio original y el audio modificado
 def entropia(audio_original, audio_modificado):
     """Calcular la entropía de dos audios.
     formula entropia = -sum(p(x) * log2(p(x)))
+    
+    La entropia minima es 0 y la maxima es log2(2^16) = 16
+    
+    basado en https://stackoverflow.com/questions/15450192/fastest-way-to-compute-entropy-in-python :)
 
     Args:
         audio_original (numpy.array): Arreglo de audio original
@@ -118,25 +126,57 @@ def entropia(audio_original, audio_modificado):
     Returns:
         float: Valor de la entropía de los dos audios
     """
-    # ! Consultar el valor maximo y minimo de entropia en audios, 
-    # ? Cómo se codifica el audio, como se almacena la información de un audio
-    # ? Ejemplo en imagenes es en 8 bits
     
-    # Filtrar valores cero y negativos
-    audio_original = np.where(audio_original > 0, audio_original, 1e-10)
-    audio_modificado = np.where(audio_modificado > 0, audio_modificado, 1e-10)
+    # LABELS
+    n_labels_original = len(audio_original)
+    n_labels_modificado = len(audio_modificado)
+    
+    # SESGO 
+    if n_labels_original <= 1:
+        return 0
+    if n_labels_modificado <= 1:
+        return 0
+    
+    # Asegúrate de que 'base_original' y 'base_mod' estén definidas antes de usarlas
+    if 'base_original' not in locals():
+        base_original = None
+    if 'base_mod' not in locals():
+        base_mod = None
+    
+    # RECUPERAR PROBABILIDADES
+    value_original, counts_original = np.unique(audio_original, return_counts=True)
+    probs_original = counts_original / n_labels_original
+    n_clases_original = np.count_nonzero(probs_original)
+    
+    value_modificado, counts_modificado = np.unique(audio_modificado, return_counts=True)
+    probs_modificado = counts_modificado / n_labels_modificado
+    n_clases_modificado = np.count_nonzero(probs_modificado)
+    
+    # SESGO CLASES
+    if n_clases_original <= 1:
+        entropia_original = 0
+    if n_clases_modificado <= 1:
+        entropia_modificado = 0
+    
+    ent_original = 0
+    ent_modificado = 0
+    
+    # CALCULAR ENTROPIA
+    if base_original is None:
+        base_original = e
+    for i in probs_original:
+        ent_original -= i * log(i, base_original)
+    
+    if base_mod is None:
+        base_mod = e
+    for i in probs_modificado:
+        ent_modificado -= i * log(i, base_mod)
+    
+    print(f"Entropía audio original   [0,16]: {ent_original}")
+    print(f"Entropía audio modificado [0,16]: {ent_modificado}")
+    
+    return ent_original, ent_modificado
 
-    # Calcular la entropía
-    # ! probabilidad_audio_original = audio_original / np.sum(audio_original)
-    # ! probabilidad_audio_modificado = audio_modificado / np.sum(audio_modificado)
-    entropia_original = np.sum(-audio_original * np.log2(audio_original))
-    entropia_modificado = np.sum(-audio_modificado * np.log2(audio_modificado))
-    
-    print(f"Entropía audio original: {entropia_original:.2f}")
-    print(f"Entropía audio modificado: {entropia_modificado:.2f}")
-    
-    return entropia_original, entropia_modificado
-  
 # función para la medición de la correlación cruzada en el audio original y el audio modificado
 def correlacion_cruzada(audio_original, audio_modificado):
     """Calcular la correlación cruzada entre dos audios.
@@ -159,7 +199,7 @@ def correlacion_cruzada(audio_original, audio_modificado):
     print(f"Correlación cruzada: {correlacion_cruzada:.2f}")
     
     return correlacion_cruzada
-  
+
 # función para determinar la autocorrelación en el audio original y el audio modificado
 def autocorrelacion(audio_original, audio_modificado):
     """Calcular la autocorrelación de dos audios.
@@ -174,7 +214,7 @@ def autocorrelacion(audio_original, audio_modificado):
     
     print(f"Autocorrelación audio original: {autocorrelacion_original}")
     print(f"Autocorrelación audio modificado: {autocorrelacion_modificado}")
-  
+
 # función para el analisis de componentes del audio original y el audio modificado
 def analisis_componentes(audio_original, audio_modificado):
     """Realizar un análisis de componentes en dos audios.
