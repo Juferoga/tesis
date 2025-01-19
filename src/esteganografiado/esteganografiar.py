@@ -54,7 +54,7 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
   print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
-  print(f"Tamaño mensaje: {len(message_bits)}")
+  
   
   if len(least_significant_bits) < len(message_bits):
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
@@ -62,6 +62,7 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
   for i in range(len(message_bits)):
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
     sample_bin = format(segment_array[i], 'b').zfill(16)
+    print(f"Segmento {i} original: {sample_bin}")
     # Obtener los bits menos significativos del i-ésimo segmento de audio
     lsb = least_significant_bits[i]
     # Reemplazar el bit menos significativo del i-ésimo segmento de audio por el i-ésimo bit del mensaje    
@@ -93,7 +94,7 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
   print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
   print(f"Tamaño mensaje: {len(message_bits)}")
-  #print(least_significant_bits)
+  print("Least significant bits", type(least_significant_bits))
   
   secuencia_aleatoria = generar_secuencia_aleatoria(
                               ChaosMod.X0.value,
@@ -105,7 +106,6 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
   
   print("Secuencia aleatoria generada", secuencia_aleatoria)
   print("Tamaño secuencia aleatoria", len(secuencia_aleatoria))
-  print("Tamaño segmento", len(segment_array))
   
   if len(least_significant_bits) < len(message_bits):
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
@@ -116,14 +116,14 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
     # Obtener el i-ésimo segmento de audio y convertirlo a binario de 16 bits
     sample_bin = format(segment_array[i], 'b').zfill(16)
     # Obtener los bits menos significativos del i-ésimo segmento de audio
-    lsb = least_significant_bits[i]
+    lsb = least_significant_bits[bit_index]
     # Reemplazar el bit menos significativo del i-ésimo segmento de audio por el i-ésimo bit del mensaje    
-    modified_sample_bin = sample_bin[:-len(lsb)] + message_bits[bit_index]
+    modified_sample_bin = sample_bin[:-len(lsb)] + message_bits[i]
     # Convertir el i-ésimo segmento de audio modificado a entero
     modified_sample = int(modified_sample_bin, 2)
     # Actualizar el i-ésimo segmento de audio en el arreglo de segmentos de audio modificados
     modified_segment_array[i] = modified_sample
-    print(f"Bit index: {bit_index} - LSB: {lsb} - Sample bin: {sample_bin}")
+    print(f"Posicion aleatoria: {bit_index} - Sample bin: {sample_bin} - bit menos significativo actual: {lsb} - bit menos significativo nuevo: {message_bits[bit_index]} - segmento modificado: {modified_sample_bin}")
     
   print("SEGMENTO MODIFICADO",modified_segment_array)
   

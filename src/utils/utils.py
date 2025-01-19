@@ -10,6 +10,8 @@ def get_least_significant_bits(segment_array, num_bits=1):
   Returns:
       list: Lista de cadenas de bits (str) con los bits menos significativos de cada segmento de audio.
   """
+  print("Segment array", type(segment_array))
+  print("Segment array", segment_array)
   least_significant_bits = [format(sample, 'b')[-num_bits:] for sample in segment_array]
   return least_significant_bits
 
