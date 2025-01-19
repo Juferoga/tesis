@@ -74,6 +74,7 @@ def extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_s
     bits_extraidos, mensaje_extraido = extraer_mensaje_segmento_lsb_random(arreglo_segmento_extraido, len(mensaje_bits))
   
   extraccion_correcta = mensaje_bits == bits_extraidos
+  
 
   if extraccion_correcta:
     mensaje_original_bytes = np.array([ord(c) for c in mensaje_extraido], dtype=np.uint8)
@@ -112,14 +113,14 @@ def main():
   mensaje_bits, llave = convertir_mensaje_a_bits(mensaje)
 
   # Insertar mensaje en el audio
-  arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(arreglo_audio_original, mensaje_bits)#, False, False)
+  arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(arreglo_audio_original, mensaje_bits, False, False)
 
   # Guardar el archivo de audio modificado
   ruta_audio_modificado = os.path.join(os.getcwd(), "data/audio_test_modificado.wav")
   guardar_audio_modificado(ruta_audio_modificado, arreglo_audio_modificado, params)
 
   # Extraer y verificar el mensaje
-  mensaje_desencriptado = extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits, llave)#, False)
+  mensaje_desencriptado = extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits, llave, False)
   if mensaje_desencriptado:
     print(f"Mensaje desencriptado: {mensaje_desencriptado}")
     mensaje_descomprimido = descomprimir(mensaje_comprimido)
@@ -128,16 +129,16 @@ def main():
     print("Error al extraer el mensaje.")
 
   # Imágenes
-  # plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  # plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-  # plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
+  #plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  #plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+  #plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
   
   # Métricas
-  print("------------Métricas------------")
+  #print("------------Métricas------------")
   # mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
   # distorsion(arreglo_audio_original, arreglo_audio_modificado)
-  invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
-  entropia(arreglo_audio_original, arreglo_audio_modificado)
+  #invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
+  # entropia(arreglo_audio_original, arreglo_audio_modificado)
   # correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
   #autocorrelacion(arreglo_audio_original, arreglo_audio_modificado)
   # analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)

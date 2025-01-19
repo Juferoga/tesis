@@ -23,6 +23,8 @@ def extraer_mensaje_segmento_lsb_sequential(segment_array, message_length, num_l
   # Convertir la cadena de bits a una cadena de caracteres (mensaje)
   extracted_message = ''.join([chr(int(extracted_bits[i:i+8], 2)) for i in range(0, len(extracted_bits), 8)])
   # Retornar los bits extraídos y el mensaje extraído
+  print("Bits extraídos", extracted_bits)
+  print("Mensaje extraído", extracted_message)
   return extracted_bits, extracted_message
 
 def extraer_mensaje_segmento_lsb_random(modified_segment_array, message_length, num_least_significant_bits=1):
@@ -59,7 +61,7 @@ def extraer_mensaje_segmento_lsb_random(modified_segment_array, message_length, 
     # Asegurarse de que el índice no exceda el tamaño del arreglo
     if bit_index < len(least_significant_bits):
       # Obtener el bit menos significativo en la posición aleatoria
-      lsb = least_significant_bits[bit_index]
+      lsb = least_significant_bits[i]
       # Agregar el bit extraído a la lista
       extracted_bits_list.append(lsb)
       # Imprimir el índice del bit, el LSB y la cadena de bits extraídos hasta el momento
@@ -67,7 +69,8 @@ def extraer_mensaje_segmento_lsb_random(modified_segment_array, message_length, 
     else:
       print(f"Índice fuera de rango: {bit_index}")
       break
-  
+  #0011110001001101101011000010110100101101011110001101000111011100
+  #1001010010000101011100000011110010011111110110101011010011001110
   # Unir los bits extraídos en una cadena
   extracted_bits = ''.join(extracted_bits_list)
   print("Bits extraídos", extracted_bits)
