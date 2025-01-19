@@ -4,7 +4,7 @@ from ollama import chat
 from ollama import ChatResponse
 
 def comprimir(prompt, instruction = "", question = ""):
-  target_token = int(len(prompt.split(" ")) * 0.9)
+  target_token = int(len(prompt.split(" ")) * 0.8)
   print(f"Target token: {target_token}")
   llm_lingua = PromptCompressor(device_map="cpu")
 
@@ -14,6 +14,5 @@ def comprimir(prompt, instruction = "", question = ""):
     question=question, 
     target_token=target_token
   )
-  print("\n:::::MENSAJE COMPRIMIDO TOTAL:::::\n", compressed_prompt)
-  print("\n:::::MENSAJE COMPRIMIDO SECTIONED:::::\n", compressed_prompt['compressed_prompt'])
+  print("\n:::::MENSAJE COMPRIMIDO:::::\n", compressed_prompt['compressed_prompt'])
   return compressed_prompt['compressed_prompt']

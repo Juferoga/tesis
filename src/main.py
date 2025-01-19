@@ -107,6 +107,7 @@ def main():
 
   # comprimir mensaje
   mensaje_comprimido = comprimir(mensaje)
+  mensaje = mensaje_comprimido
 
   mensaje_bits, llave = convertir_mensaje_a_bits(mensaje)
 
