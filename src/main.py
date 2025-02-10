@@ -19,6 +19,9 @@ from src.utils.caos import generar_llave
 # Enums configuraciones
 from src.utils.chaos_mod_enum import ChaosMod
 
+# Ataques
+from src.utils.ataques import AudioAttacks
+
 import numpy as np
 import wave
 import os
@@ -134,14 +137,17 @@ def main():
   #plot_audio_spectrograms(ruta_audio, ruta_audio_modificado)
   
   # Métricas
-  #print("------------Métricas------------")
-  # mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
-  # distorsion(arreglo_audio_original, arreglo_audio_modificado)
-  #invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
-  # entropia(arreglo_audio_original, arreglo_audio_modificado)
-  # correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
-  #autocorrelacion(arreglo_audio_original, arreglo_audio_modificado)
-  # analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
+  print("------------Métricas------------")
+  mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
+  distorsion(arreglo_audio_original, arreglo_audio_modificado)
+  invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
+  entropia(arreglo_audio_original, arreglo_audio_modificado)
+  correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
+  autocorrelacion(arreglo_audio_original, arreglo_audio_modificado)
+  analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
+
+  # Ataques 
+  attacks = AudioAttacks(input_audio)
   
 
 if __name__ == "__main__":

@@ -2,9 +2,6 @@ import numpy as np
 from scipy.stats import chisquare, ks_2samp, mannwhitneyu
 from math import log, e
 
-# TODO: Implementar tiempos
-# !13 de enero retomamos el proyecto
-
 # función métrica MSE - PSNR de dos audios
 def mse_psnr(audio_original, audio_modificado):
   """Calcular la relación señal-ruido de pico (PSNR) entre dos audios.
