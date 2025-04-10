@@ -1,35 +1,119 @@
 import numpy as np
 from scipy.stats import chisquare, ks_2samp, mannwhitneyu
 from math import log, e
+import psutil
+import time
+import os
 
-# TODO: Implementar tiempos
-# !13 de enero retomamos el proyecto
+# función para medir el uso de recursos
+def medir_recursos():
+    """Medir el uso de recursos del sistema.
+
+    Returns:
+        dict: Diccionario con el uso de CPU, memoria RAM y espacio en disco
+    """
+    # Obtener proceso actual
+    process = psutil.Process(os.getpid())
+    
+    # Medir uso de CPU
+    cpu_percent = psutil.cpu_percent(interval=0.1)
+    
+    # Medir uso de memoria
+    memory_info = process.memory_info()
+    memory_mb = memory_info.rss / (1024 * 1024)  # Convertir a MB
+    
+    # Medir uso de disco
+    disk_usage = psutil.disk_usage('/')
+    disk_percent = disk_usage.percent
+    
+    print(f"Uso de CPU: {cpu_percent:.2f}%")
+    print(f"Uso de memoria RAM: {memory_mb:.2f} MB")
+    print(f"Uso de disco: {disk_percent:.2f}%")
+    
+    return {
+        "cpu_percent": cpu_percent,
+        "memory_mb": memory_mb,
+        "disk_percent": disk_percent
+    }
+
+# Clase para medir el tiempo de ejecución
+class TimerContextManager:
+    """Manejador de contexto para medir el tiempo de ejecución de un bloque de código.
+    
+    Example:
+        with TimerContextManager("Nombre de la sección") as timer:
+            # código a medir
+        tiempo_transcurrido = timer.elapsed
+    """
+    def __init__(self, section_name):
+        self.section_name = section_name
+        self.start_time = None
+        self.elapsed = 0
+        
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.elapsed = time.time() - self.start_time
+        print(f"Tiempo de ejecución [{self.section_name}]: {self.elapsed:.4f} segundos")
+        return False
 
 # función métrica MSE - PSNR de dos audios
 def mse_psnr(audio_original, audio_modificado):
-  """Calcular la relación señal-ruido de pico (PSNR) entre dos audios.
-  docs: https://www.youtube.com/watch?v=XmPfXt9E3VI
+    """Calcular la relación señal-ruido de pico (PSNR) entre dos audios.
+    docs: https://www.youtube.com/watch?v=XmPfXt9E3VI
 
-  Args:
-      audio_original (numpy.array): Arreglo de audio original
-      audio_modificado (numpy.array): Arreglo de audio modificado
+    Args:
+        audio_original (numpy.array): Arreglo de audio original
+        audio_modificado (numpy.array): Arreglo de audio modificado
 
-  Returns:
-      float: Valor de la relación señal-ruido de pico (PSNR) entre los dos audios
-  """
-  # Calcular el error cuadrático medio (MSE)
-  mse = np.mean((audio_original - audio_modificado) ** 2)
-  # Calcular el valor máximo de los datos
-  max_val = np.max(audio_original)
-  # Calcular el PSNR
-  psnr = 10 * np.log10(max_val ** 2 / mse)
-  # MSE : Es el promedio de los errores al cuadrado 
-  #   entre los valores originales y los valores predichos.
-  # PSNR : Aplicado al audio es una medida de la 
-  #   calidad de la señal de audio, que se mide en decibelios (dB).
-  print(f"MSE: {mse:.2f}, PSNR: {psnr:.2f} dB")
-  
-  return mse, psnr
+    Returns:
+        float: Valor de la relación señal-ruido de pico (PSNR) entre los dos audios
+    """
+    try:
+        # Verificar las dimensiones y asegurar que sean compatibles para la operación
+        if len(audio_original.shape) != len(audio_modificado.shape):
+            # Si tienen distinto número de dimensiones, convertir para hacerlos compatibles
+            if len(audio_original.shape) > len(audio_modificado.shape):
+                # Si original es estéreo y modificado es mono, convertir modificado a estéreo
+                audio_modificado = np.column_stack((audio_modificado, audio_modificado))
+            else:
+                # Si original es mono y modificado es estéreo, tomar solo el canal izquierdo de modificado
+                audio_modificado = audio_modificado[:, 0]
+        
+        # Si son estéreo, calcular el MSE promediando los canales
+        if len(audio_original.shape) > 1:
+            mse_values = []
+            for ch in range(audio_original.shape[1]):
+                mse_ch = np.mean((audio_original[:, ch] - audio_modificado[:, ch]) ** 2)
+                mse_values.append(mse_ch)
+            mse = np.mean(mse_values)
+        else:
+            # Para audio mono
+            mse = np.mean((audio_original - audio_modificado) ** 2)
+        
+        # Calcular el valor máximo de los datos
+        max_val = np.max(np.abs(audio_original))
+        
+        # Prevenir división por cero
+        if mse == 0:
+            return 0, float('inf')
+        
+        # Calcular el PSNR
+        psnr = 10 * np.log10(max_val ** 2 / mse)
+        
+        # MSE : Es el promedio de los errores al cuadrado 
+        #   entre los valores originales y los valores predichos.
+        # PSNR : Aplicado al audio es una medida de la 
+        #   calidad de la señal de audio, que se mide en decibelios (dB).
+        print(f"MSE: {mse:.2f}, PSNR: {psnr:.2f} dB")
+        
+        return mse, psnr
+    
+    except Exception as e:
+        print(f"Error al calcular MSE-PSNR: {e}")
+        return 0, 0
 
 # Función calculo de distorsión de audio original y audio modificado
 def distorsion(audio_original, audio_modificado):

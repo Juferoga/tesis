@@ -53,7 +53,7 @@ def insertar_mensaje_segmento_lsb_sequential(segment_array, message_bits, num_le
   modified_segment_array = np.copy(segment_array)
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
-  print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
+  #print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
   
   
   if len(least_significant_bits) < len(message_bits):
@@ -87,14 +87,14 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
   Raises:
       ValueError: Si el mensaje es muy largo para ser insertado en el audio
   """
-  print("Mensaje original", message_bits)
+  #print("Mensaje original", message_bits)
   modified_segment_array = np.copy(segment_array)
   
   # Obtener los bits menos significativos de cada segmento de audio
   least_significant_bits = get_least_significant_bits(segment_array, num_least_significant_bits)
-  print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
-  print(f"Tamaño mensaje: {len(message_bits)}")
-  print("Least significant bits", type(least_significant_bits))
+  #print(f"Tamaño arreglo bits menos significativos (Capacidad en bits): {len(least_significant_bits)}")
+  #print(f"Tamaño mensaje: {len(message_bits)}")
+  #print("Least significant bits", type(least_significant_bits))
   
   secuencia_aleatoria = generar_secuencia_aleatoria(
                               ChaosMod.X0.value,
@@ -104,8 +104,8 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
                               len(message_bits),
                               'int')
   
-  print("Secuencia aleatoria generada", secuencia_aleatoria)
-  print("Tamaño secuencia aleatoria", len(secuencia_aleatoria))
+  # print("Secuencia aleatoria generada", secuencia_aleatoria)
+  # print("Tamaño secuencia aleatoria", len(secuencia_aleatoria))
   
   if len(least_significant_bits) < len(message_bits):
     raise ValueError("El mensaje es muy largo para ser insertado en el audio")
@@ -123,8 +123,8 @@ def insertar_mensaje_segmento_lsb_random(segment_array, message_bits, num_least_
     modified_sample = int(modified_sample_bin, 2)
     # Actualizar el i-ésimo segmento de audio en el arreglo de segmentos de audio modificados
     modified_segment_array[i] = modified_sample
-    print(f"Posicion aleatoria: {bit_index} - Sample bin: {sample_bin} - bit menos significativo actual: {lsb} - bit menos significativo nuevo: {message_bits[bit_index]} - segmento modificado: {modified_sample_bin}")
+    # print(f"Posicion aleatoria: {bit_index} - Sample bin: {sample_bin} - bit menos significativo actual: {lsb} - bit menos significativo nuevo: {message_bits[bit_index]} - segmento modificado: {modified_sample_bin}")
     
-  print("SEGMENTO MODIFICADO",modified_segment_array)
+  # print("SEGMENTO MODIFICADO",modified_segment_array)
   
   return modified_segment_array

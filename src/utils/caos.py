@@ -34,7 +34,7 @@ def generar_secuencia_aleatoria(x0, r, n_warmup, lim_inf, lim_sup, tipo='float')
   for _ in range(n_warmup):
     x = mapa_logistico(x, r)
   # Generar la secuencia aleatoria sin repeticiones
-  print(lim_sup - lim_inf)
+  #print(lim_sup - lim_inf)
   while len(secuencia_aleatoria) < (lim_sup - lim_inf):
     #print(lim_sup - lim_inf)
     #print(len(secuencia_aleatoria))
@@ -45,7 +45,7 @@ def generar_secuencia_aleatoria(x0, r, n_warmup, lim_inf, lim_sup, tipo='float')
     if valor not in valores_generados:
       valores_generados.add(valor)
       secuencia_aleatoria.append(valor)
-  print(secuencia_aleatoria)
+  #print(secuencia_aleatoria)
 
   return secuencia_aleatoria
 
