@@ -27,6 +27,12 @@ Iniciar el proyecto, después de instaladas las dependencias correr el comando
 python -m src.main
 ```
 
+# Correr servidor
+
+```bash
+cd /paht/repos/tesis && python -m uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000
+```
+
 ## Funcionalidades
 
 - **Compresión de texto**: Comprime y descomprime texto utilizando algoritmos específicos de IA.
