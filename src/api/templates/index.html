@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta de Esteganografía de Audio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="mb-4 text-center py-3">
+            <h1 class="display-4">Esteganografía de Audio</h1>
+            <p class="lead">Oculta mensajes en archivos de audio y extrae mensajes ocultos de archivos esteganografiados</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Sección de Codificación -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h4 mb-0">Ocultar Mensaje en Audio</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="encodeForm">
+                            <div class="mb-3">
+                                <label for="audioFile" class="form-label">Subir Archivo de Audio (.wav)</label>
+                                <input type="file" class="form-control" id="audioFile" accept=".wav" required>
+                                <div class="form-text">Solo se permiten archivos WAV.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="messageToHide" class="form-label">Mensaje a Ocultar</label>
+                                <textarea class="form-control" id="messageToHide" rows="4" placeholder="Escriba aquí el mensaje que desea ocultar en el archivo de audio..." required></textarea>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="sequentialEncode">
+                                <label class="form-check-label" for="sequentialEncode">Usar Método Secuencial (desmarque para Aleatorio)</label>
+                                <div class="form-text">El método secuencial es más rápido pero potencialmente menos seguro.</div>
+                            </div>
+
+                            <button type="submit" id="encodeBtn" class="btn btn-primary">
+                                <i class="fas fa-lock me-2"></i>Ocultar Mensaje
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <!-- Sección de Decodificación -->
+                <!<div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h4 mb-0">Extraer Mensaje Oculto</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="decodeForm">
+                            <div class="mb-3">
+                                <label for="audioFileWithHiddenMessage" class="form-label">Subir Audio con Mensaje Oculto (.wav)</label>
+                                <input type="file" class="form-control" id="audioFileWithHiddenMessage" accept=".wav" required>
+                                <div class="form-text">Seleccione un archivo WAV que contenga un mensaje oculto.</div>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="sequentialDecode">
+                                <label class="form-check-label" for="sequentialDecode">Usar Método Secuencial (desmarque para Aleatorio)</label>
+                                <div class="form-text">Debe seleccionar el mismo método que se usó para ocultar el mensaje.</div>
+                            </div>
+
+                            <button type="submit" id="decodeBtn" class="btn btn-success">
+                                <i class="fas fa-unlock-alt me-2"></i>Extraer Mensaje
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador de procesamiento -->
+        <div id="processingIndicator" class="text-center my-4 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Procesando...</span>
+            </div>
+            <p class="mt-2 processing-text">Procesando, esto puede tomar varios segundos...</p>
+            <div class="progress mt-2">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div id="resultArea" style="display:none;">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Resultados</h2>
+                    <button class="btn btn-sm btn-outline-light" id="closeResults">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Los resultados se mostrarán aquí -->
+                    <div id="messageResult" class="mb-3 d-none">
+                        <h3 class="h5 mb-3">Mensaje Extraído</h3>
+                        <div class="alert alert-success">
+                            <pre id="extractedMessage"></pre>
+                        </div>
+                    </div>
+
+                    <div id="errorArea" class="mb-3 d-none">
+                        <h3 class="h5 mb-3">Error</h3>
+                        <div class="alert alert-danger">
+                            <p id="errorMessage" class="mb-2 fw-bold"></p>
+                            <p id="errorDetail" class="mb-2"></p>
+                            <div id="errorTechnical" class="d-none">
+                                <hr>
+                                <p class="mb-1"><strong>Información técnica:</strong></p>
+                                <pre id="errorLocation" class="error-trace"></pre>
+                                <button class="btn btn-sm btn-outline-danger mt-2" id="toggleErrorDetails">
+                                    Mostrar detalles técnicos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="downloadArea" class="mb-4 d-none">
+                        <h3 class="h5">Descargar Audio Esteganografiado</h3>
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <a id="downloadLink" class="btn btn-primary mb-2" href="#" download="audio_esteganografiado.wav">
+                                    <i class="fas fa-download me-2"></i>Descargar Audio
+                                </a>
+                                <button id="playEncodedAudio" class="btn btn-outline-primary mb-2">
+                                    <i class="fas fa-play me-2"></i>Reproducir Audio
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="downloadFilename" placeholder="Nombre del archivo">
+                                    <label for="downloadFilename">Nombre del archivo</label>
+                                </div>
+                            </div>
+                        </div>
+                        <audio id="audioPlayer" controls class="mt-2 d-none w-100"></audio>
+                        <div id="processTimeEncode" class="alert alert-info mt-2 d-none">
+                            <i class="fas fa-info-circle me-2"></i><span id="processTimeTextEncode"></span>
+                        </div>
+                    </div>
+
+                    <div id="metricsArea" class="mb-4 d-none">
+                        <h3 class="h5 mb-3">Métricas del Audio</h3>
+                        <div id="metricsContent"></div>
+                    </div>
+
+                    <div id="plotsArea" class="mb-4 d-none">
+                        <h3 class="h5 mb-3">Visualizaciones</h3>
+                        <p class="text-muted small">Haga clic en una imagen para verla en tamaño completo</p>
+                        <div id="plotsContent" class="row"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">Herramienta de Esteganografía de Audio &copy; 2024</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</body>
+</html>

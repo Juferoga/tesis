@@ -306,6 +306,9 @@ def analisis_componentes(audio_original, audio_modificado):
     Args:
         audio_original (numpy.array): Arreglo de audio original
         audio_modificado (numpy.array): Arreglo de audio modificado
+
+    Returns:
+        tuple: Contiene la media y desviación estándar de los audios (media_original, media_modificado, std_original, std_modificado)
     """
     # Calcular la media y la desviación estándar de los audios
     media_original = np.mean(audio_original)
@@ -317,3 +320,5 @@ def analisis_componentes(audio_original, audio_modificado):
     print(f"Media audio modificado: {media_modificado:.2f}")
     print(f"Desviación estándar audio original: {std_original:.2f}")
     print(f"Desviación estándar audio modificado: {std_modificado:.2f}")
+    
+    return media_original, media_modificado, std_original, std_modificado
