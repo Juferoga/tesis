@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Elementos del formulario de decodificación
     const decodeForm = document.getElementById('decodeForm');
     const audioFileWithMessageInput = document.getElementById('audioFileWithHiddenMessage');
+    const keyIdInput = document.getElementById('keyId'); // Nuevo campo para ID de la llave
     const sequentialDecodeCheckbox = document.getElementById('sequentialDecode');
     const decodeBtn = document.getElementById('decodeBtn');
     
@@ -36,6 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeResults = document.getElementById('closeResults');
     const processTimeEncode = document.getElementById('processTimeEncode');
     const processTimeTextEncode = document.getElementById('processTimeTextEncode');
+    
+    // Elementos para mostrar y copiar el ID de la llave
+    const keyIdArea = document.getElementById('keyIdArea');
+    const keyIdDisplay = document.getElementById('keyIdDisplay');
+    const copyKeyIdBtn = document.getElementById('copyKeyId');
     
     // Tiempo máximo de espera para solicitudes (en milisegundos)
     const MAX_TIMEOUT = 300000; // 5 minutos
@@ -158,6 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        if (!keyIdInput.value.trim()) {
+            showError('Debe ingresar el ID de la llave generada durante la codificación.');
+            return;
+        }
+        
         // Mostrar indicador de procesamiento
         showProcessingIndicator("Extrayendo mensaje oculto del audio...");
         
@@ -166,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('file', audioFile);
             formData.append('sequential', sequentialDecodeCheckbox.checked);
+            formData.append('key_id', keyIdInput.value.trim()); // Añadir el ID de la llave al FormData
             
             console.log("Enviando archivo para decodificación...");
             
@@ -273,6 +285,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Función para copiar el ID de la llave
+    if (copyKeyIdBtn) {
+        copyKeyIdBtn.addEventListener('click', function() {
+            if (keyIdDisplay.value) {
+                // Verificar si la API de portapapeles está disponible
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(keyIdDisplay.value)
+                        .then(() => {
+                            // Cambiar texto del botón temporalmente para mostrar éxito
+                            const originalText = copyKeyIdBtn.innerHTML;
+                            copyKeyIdBtn.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                            copyKeyIdBtn.classList.remove('btn-outline-secondary');
+                            copyKeyIdBtn.classList.add('btn-success');
+                            
+                            setTimeout(() => {
+                                copyKeyIdBtn.innerHTML = originalText;
+                                copyKeyIdBtn.classList.remove('btn-success');
+                                copyKeyIdBtn.classList.add('btn-outline-secondary');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('No se pudo copiar el texto: ', err);
+                            fallbackCopy(keyIdDisplay.value);
+                        });
+                } else {
+                    // Método alternativo si la API de clipboard no está disponible
+                    fallbackCopy(keyIdDisplay.value);
+                }
+            }
+        });
+    }
+    
+    // Función alternativa para copiar texto cuando la API de clipboard no está disponible
+    function fallbackCopy(text) {
+        // Crear un área de texto temporal
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Asegurarse de que sea visible, pero fuera de la pantalla
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        
+        // Seleccionar y copiar
+        textArea.focus();
+        textArea.select();
+        
+        let successful = false;
+        try {
+            successful = document.execCommand('copy');
+            
+            if (successful) {
+                // Cambiar texto del botón temporalmente para mostrar éxito
+                const originalText = copyKeyIdBtn.innerHTML;
+                copyKeyIdBtn.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                copyKeyIdBtn.classList.remove('btn-outline-secondary');
+                copyKeyIdBtn.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    copyKeyIdBtn.innerHTML = originalText;
+                    copyKeyIdBtn.classList.remove('btn-success');
+                    copyKeyIdBtn.classList.add('btn-outline-secondary');
+                }, 2000);
+            } else {
+                alert('No se pudo copiar el texto. Intente seleccionarlo manualmente.');
+            }
+        } catch (err) {
+            console.error('No se pudo copiar el texto: ', err);
+            alert('No se pudo copiar el texto. Intente seleccionarlo manualmente.');
+        }
+        
+        // Limpiar
+        document.body.removeChild(textArea);
+    }
+    
     // Función para mostrar el indicador de procesamiento
     function showProcessingIndicator(message = "Procesando, esto puede tomar varios segundos...") {
         // Guardar hora de inicio para seguimiento
@@ -333,6 +421,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Hacer visible el área de resultados
         resultArea.style.display = 'block';
+        
+        // Mostrar y configurar el área del ID de la llave
+        if (data.file_id) {
+            keyIdArea.style.display = 'block';
+            keyIdDisplay.value = data.file_id;
+        } else {
+            keyIdArea.style.display = 'none';
+        }
         
         // Configurar enlace de descarga
         downloadArea.classList.remove('d-none');
@@ -602,6 +698,10 @@ document.addEventListener('DOMContentLoaded', function() {
         metricsArea.classList.add('d-none');
         plotsArea.classList.add('d-none');
         processTimeEncode.classList.add('d-none');
+        
+        // Resetear el área del ID de la llave
+        keyIdArea.style.display = 'none';
+        keyIdDisplay.value = '';
         
         // Limpiar secciones de contenido
         metricsContent.innerHTML = '';

@@ -17,6 +17,7 @@ import logging
 import time
 from datetime import datetime
 
+
 # Configurar logging
 logging.basicConfig(
     level=logging.DEBUG,
@@ -27,6 +28,8 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("audio_steganography_api")
+
+from src.encriptado.encriptar import xor_encriptado
 
 # Import application logic from parent modules
 from src.main import (
@@ -210,8 +213,6 @@ async def encode_message(
         # Comprimir mensaje
         try:
             mensaje_comprimido = comprimir(message)
-            print("mensaje_comprimido", mensaje_comprimido)
-            time.sleep(20)
             logger.debug(f"Mensaje comprimido correctamente. Longitud original: {len(message)}, Comprimido: {len(mensaje_comprimido)}")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -227,7 +228,6 @@ async def encode_message(
         
         # Convert message to bits and encrypt
         try:
-            
             mensaje_bits, llave = convertir_mensaje_a_bits(mensaje_comprimido)
             logger.debug(f"Mensaje convertido a bits: {len(mensaje_bits)} bits")
         except Exception as e:
@@ -461,11 +461,14 @@ async def download_file(file_id: str, filename: str = None):
 @app.post("/decode")
 async def decode_message(
     file: UploadFile = File(...),
+    key_id: str = Form(...),
     sequential: bool = Form(False)
 ):
     """Endpoint para extraer un mensaje oculto de un archivo de audio"""
+    logger.info(f"[DECODE] Iniciando decodificación para archivo={file.filename}, key_id={key_id}, sequential={sequential}")
+    
     if not file.filename.endswith('.wav'):
-        logger.warning(f"Intento de decodificar archivo no soportado: {file.filename}")
+        logger.warning(f"[DECODE] Rechazando archivo no soportado: {file.filename}")
         return JSONResponse(
             status_code=400,
             content={
@@ -474,22 +477,93 @@ async def decode_message(
             }
         )
     
-    logger.info(f"Iniciando decodificación de archivo {file.filename} (Método: {'Secuencial' if sequential else 'Aleatorio'})")
+    # Verificar que existan los archivos de llave y metadatos
+    metadata_path = TEMP_DIR / f"{key_id}_metadata.txt"
+    key_path = TEMP_DIR / f"{key_id}_key.txt.npy"
+    
+    logger.debug(f"[DECODE] Verificando existencia de metadatos: {metadata_path}")
+    logger.debug(f"[DECODE] Verificando existencia de llave: {key_path}")
+    
+    if not metadata_path.exists() or not key_path.exists():
+        logger.warning(f"[DECODE] Llave o metadatos no encontrados para ID: {key_id}")
+        return JSONResponse(
+            status_code=404,
+            content={
+                "success": False,
+                "error": "Llave o metadatos no encontrados",
+                "detalle": "No se encontraron los archivos de llave o metadatos para el ID proporcionado. Asegúrese de usar el ID correcto generado durante el proceso de codificación."
+            }
+        )
+    
     start_time = time.time()
     
     try:
-        # Save uploaded file temporarily
-        temp_file_path = TEMP_DIR / f"decode_{uuid.uuid4()}.wav"
-        with open(temp_file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        # Load the audio file
+        # Cargar la llave para la decodificación
+        logger.debug(f"[DECODE] Iniciando carga de llave desde {key_path}")
         try:
-            arreglo_audio_modificado = cargar_audio(str(temp_file_path))
-            logger.debug(f"Audio cargado correctamente: {len(arreglo_audio_modificado)} samples")
+            stage_start = time.time()
+            llave = np.load(key_path)
+            logger.debug(f"[DECODE] Llave cargada correctamente desde {key_path}, shape: {llave.shape}, dtype: {llave.dtype} ({time.time() - stage_start:.4f}s)")
         except Exception as e:
             error_detail = traceback.format_exc()
-            logger.error(f"Error al cargar archivo de audio para decodificar: {str(e)}\n{error_detail}")
+            logger.error(f"[DECODE] Error al cargar la llave: {str(e)}\n{error_detail}")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": "Error al cargar la llave",
+                    "detalle": f"No se pudo cargar la llave para la decodificación: {str(e)}",
+                    "ubicacion": error_detail
+                }
+            )
+        
+        # Cargar los metadatos
+        logger.debug(f"[DECODE] Iniciando carga de metadatos desde {metadata_path}")
+        try:
+            stage_start = time.time()
+            with open(metadata_path, "r") as f:
+                lines = f.readlines()
+                inicio_segmento = int(lines[0].strip())
+                fin_segmento = int(lines[1].strip())
+                longitud_mensaje = int(lines[2].strip())
+                secuencial_metadata = lines[3].strip().lower() == "true"
+                
+                # Usar el modo secuencial del metadata si es diferente del proporcionado
+                if secuencial_metadata != sequential:
+                    logger.warning(f"[DECODE] Modo secuencial proporcionado ({sequential}) es diferente al almacenado en metadatos ({secuencial_metadata}). Usando el valor de los metadatos.")
+                    sequential = secuencial_metadata
+                
+                logger.debug(f"[DECODE] Metadatos cargados correctamente ({time.time() - stage_start:.4f}s): Segmento: {inicio_segmento}-{fin_segmento}, Longitud: {longitud_mensaje}, Secuencial: {sequential}")
+        except Exception as e:
+            error_detail = traceback.format_exc()
+            logger.error(f"[DECODE] Error al cargar los metadatos: {str(e)}\n{error_detail}")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": "Error al cargar los metadatos",
+                    "detalle": f"No se pudo cargar los metadatos para la decodificación: {str(e)}",
+                    "ubicacion": error_detail
+                }
+            )
+        
+        # Guardar el archivo subido temporalmente
+        temp_file_path = TEMP_DIR / f"decode_{uuid.uuid4()}.wav"
+        logger.debug(f"[DECODE] Guardando archivo temporal en {temp_file_path}")
+        stage_start = time.time()
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        logger.debug(f"[DECODE] Archivo temporal guardado ({time.time() - stage_start:.4f}s)")
+        
+        # Cargar el archivo de audio
+        logger.debug(f"[DECODE] Iniciando carga del audio desde {temp_file_path}")
+        try:
+            stage_start = time.time()
+            arreglo_audio_modificado = cargar_audio(str(temp_file_path))
+            logger.debug(f"[DECODE] Audio cargado correctamente ({time.time() - stage_start:.4f}s): {len(arreglo_audio_modificado)} samples")
+        except Exception as e:
+            error_detail = traceback.format_exc()
+            logger.error(f"[DECODE] Error al cargar archivo de audio para decodificar: {str(e)}\n{error_detail}")
             return JSONResponse(
                 status_code=400,
                 content={
@@ -499,92 +573,128 @@ async def decode_message(
                 }
             )
         
-        # Try to detect the segment and message length
-        # This is a simplified approach - in a real app you might need
-        # additional metadata or analysis to determine these values
-        mensaje_extraido = None
+        # Validar que el archivo tenga suficientes muestras
+        if len(arreglo_audio_modificado) < fin_segmento:
+            logger.warning(f"[DECODE] El archivo de audio es demasiado corto para extraer el mensaje. Se esperaba al menos {fin_segmento} muestras, pero tiene {len(arreglo_audio_modificado)}")
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "error": "Archivo de audio incompatible",
+                    "detalle": f"El archivo de audio es demasiado corto para extraer el mensaje (se esperaba al menos {fin_segmento} muestras, pero tiene {len(arreglo_audio_modificado)})"
+                }
+            )
         
-        # Try different segment sizes and positions if metadata is not available
-        sample_rate = 44100  # Standard audio sample rate
-        segment_length = 44100  # 1 second segment
-        potential_segments = [
-            (len(arreglo_audio_modificado) // 2 - segment_length, len(arreglo_audio_modificado) // 2 + segment_length),
-            (0, 2 * segment_length),
-            (len(arreglo_audio_modificado) - 2 * segment_length, len(arreglo_audio_modificado))
-        ]
+        # Crear una cadena temporal de bits para la extracción
+        # En main.py se pasa mensaje_bits directamente, aquí generamos una cadena de la longitud correcta
+        temp_message_bits = "0" * longitud_mensaje
+        logger.debug(f"[DECODE] Preparada cadena temporal de bits de longitud {longitud_mensaje}")
         
-        # Try extracting with temporary random key (this is just for demonstration)
-        temp_key = np.random.randint(0, 256, size=100, dtype=np.uint8)
-        
-        success = False
-        exception_messages = []
-        
-        for inicio_segmento, fin_segmento in potential_segments:
+        # Extraer el mensaje usando los parámetros correctos
+        logger.debug(f"[DECODE] Iniciando extracción del mensaje - modo {'secuencial' if sequential else 'aleatorio'}")
+        try:
+            stage_start = time.time()
+            logger.debug(f"[DECODE] Parámetros de extracción: inicio={inicio_segmento}, fin={fin_segmento}, secuencial={sequential}")
+            
+            # Extraer segmento del audio donde se encuentra el mensaje
+            arreglo_segmento_extraido = arreglo_audio_modificado[inicio_segmento:fin_segmento]
+            logger.debug(f"[DECODE] Segmento extraído: {len(arreglo_segmento_extraido)} samples ({inicio_segmento}-{fin_segmento})")
+            
+            # Log antes de la extracción que puede ser lenta
+            logger.debug(f"[DECODE] Inicia proceso de extracción y verificación...")
+            
+            # Extraer el mensaje directamente, similar a como se hace en main.py
+            if sequential:
+                from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb_sequential
+                bits_extraidos, mensaje_extraido = extraer_mensaje_segmento_lsb_sequential(arreglo_segmento_extraido, longitud_mensaje)
+                logger.debug(f"[DECODE] Método secuencial usado para extraer {longitud_mensaje} bits")
+            else:
+                from src.esteganografiado.desesteganografiar import extraer_mensaje_segmento_lsb_random
+                bits_extraidos, mensaje_extraido = extraer_mensaje_segmento_lsb_random(arreglo_segmento_extraido, longitud_mensaje)
+                logger.debug(f"[DECODE] Método aleatorio usado para extraer {longitud_mensaje} bits")
+            
+            logger.debug(f"[DECODE] Bits extraídos: {len(bits_extraidos)} bits")
+            
+            # Verificar si la extracción fue correcta
+            if not mensaje_extraido:
+                logger.warning(f"[DECODE] No se pudo extraer mensaje del audio (mensaje_extraido es None)")
+                process_time = time.time() - start_time
+                return JSONResponse(
+                    status_code=404,
+                    content={
+                        "success": False,
+                        "error": "No se pudo extraer el mensaje",
+                        "detalle": "No se pudo extraer ningún mensaje válido con los parámetros proporcionados",
+                        "processTime": round(process_time, 2)
+                    }
+                )
+            
+            # Desencriptar el mensaje
+            logger.debug(f"[DECODE] Mensaje extraído, procediendo a desencriptar")
+            mensaje_original_bytes = np.array([ord(c) for c in mensaje_extraido], dtype=np.uint8)
+            mensaje_desencriptado_bytes = xor_encriptado(mensaje_original_bytes, llave)
+            mensaje_desencriptado = "".join([chr(b) for b in mensaje_desencriptado_bytes])
+            logger.debug(f"[DECODE] Mensaje desencriptado correctamente, longitud: {len(mensaje_desencriptado)}")
+            
+            logger.debug(f"[DECODE] Extracción y desencriptación completada ({time.time() - stage_start:.4f}s)")
+            
+            if not mensaje_desencriptado:
+                process_time = time.time() - start_time
+                logger.warning(f"[DECODE] Mensaje desencriptado está vacío")
+                return JSONResponse(
+                    status_code=404,
+                    content={
+                        "success": False,
+                        "error": "No se pudo extraer el mensaje",
+                        "detalle": "Se extrajo un mensaje pero está vacío después de la desencriptación",
+                        "processTime": round(process_time, 2)
+                    }
+                )
+            
+            # Intentar descomprimir el mensaje extraído
             try:
-                # We don't know the exact message length, so we'll try with a reasonable value
-                for msg_length in [128, 256, 512, 1024, 2048]:
-                    try:
-                        arreglo_segmento = arreglo_audio_modificado[inicio_segmento:fin_segmento]
-                        
-                        # Use a temporary message_bits string for extraction
-                        temp_message_bits = "0" * msg_length
-                        
-                        mensaje_extraido = extraer_y_verificar_mensaje(
-                            arreglo_audio_modificado, 
-                            inicio_segmento, 
-                            fin_segmento, 
-                            temp_message_bits, 
-                            temp_key,
-                            sequential
-                        )
-                        
-                        if mensaje_extraido:
-                            # Try to decompress the extracted message
-                            try:
-                                mensaje_descomprimido = descomprimir(mensaje_extraido)
-                                process_time = time.time() - start_time
-                                logger.info(f"Mensaje extraído y descomprimido correctamente en {process_time:.2f} segundos")
-                                return {
-                                    "success": True,
-                                    "message": mensaje_descomprimido,
-                                    "processTime": round(process_time, 2)
-                                }
-                            except Exception as decomp_error:
-                                exception_messages.append(f"Error al descomprimir en segmento {inicio_segmento}-{fin_segmento}: {str(decomp_error)}")
-                                # If decompression fails, return the raw message
-                                process_time = time.time() - start_time
-                                logger.warning(f"Mensaje extraído pero no se pudo descomprimir: {str(decomp_error)}")
-                                return {
-                                    "success": True,
-                                    "message": mensaje_extraido,
-                                    "note": "El mensaje podría estar corrupto o no se pudo descomprimir correctamente",
-                                    "processTime": round(process_time, 2)
-                                }
-                    except Exception as ex:
-                        exception_messages.append(f"Error en segmento {inicio_segmento}-{fin_segmento} con longitud {msg_length}: {str(ex)}")
-                        continue
-            except Exception as outer_ex:
-                exception_messages.append(f"Error general en segmento {inicio_segmento}-{fin_segmento}: {str(outer_ex)}")
-                continue
-        
-        # If we couldn't extract the message
-        process_time = time.time() - start_time
-        logger.warning(f"No se pudo extraer ningún mensaje después de {process_time:.2f} segundos")
-        return JSONResponse(
-            status_code=404,
-            content={
-                "success": False,
-                "error": "No se pudo extraer ningún mensaje de este archivo de audio",
-                "detalle": "Asegúrese de que el archivo contiene un mensaje oculto y que ha seleccionado el método correcto (secuencial/aleatorio)",
-                "intentos_fallidos": exception_messages[:5],  # Mostrar solo los primeros 5 errores para no sobrecargar
-                "processTime": round(process_time, 2)
-            }
-        )
+                logger.debug(f"[DECODE] Iniciando descompresión del mensaje")
+                stage_start = time.time()
+                mensaje_descomprimido = descomprimir(mensaje_desencriptado)
+                logger.debug(f"[DECODE] Descompresión completada ({time.time() - stage_start:.4f}s)")
+                
+                process_time = time.time() - start_time
+                logger.info(f"[DECODE] Mensaje extraído y descomprimido correctamente en {process_time:.2f} segundos")
+                return {
+                    "success": True,
+                    "message": mensaje_descomprimido,
+                    "processTime": round(process_time, 2)
+                }
+            except Exception as decomp_error:
+                # Si la descompresión falla, devolvemos el mensaje sin descomprimir
+                process_time = time.time() - start_time
+                logger.warning(f"[DECODE] Mensaje extraído pero no se pudo descomprimir ({time.time() - stage_start:.4f}s): {str(decomp_error)}")
+                return {
+                    "success": True,
+                    "message": mensaje_desencriptado,
+                    "note": "El mensaje podría estar corrupto o no se pudo descomprimir correctamente",
+                    "processTime": round(process_time, 2)
+                }
+                
+        except Exception as e:
+            error_detail = traceback.format_exc()
+            process_time = time.time() - start_time
+            logger.error(f"[DECODE] Error al extraer el mensaje: {str(e)}\n{error_detail}")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": "Error al extraer el mensaje",
+                    "detalle": f"Ocurrió un error al intentar extraer el mensaje: {str(e)}",
+                    "ubicacion": error_detail,
+                    "processTime": round(process_time, 2)
+                }
+            )
     
     except Exception as e:
         error_detail = traceback.format_exc()
         process_time = time.time() - start_time
-        logger.error(f"Error general en proceso de decodificación: {str(e)}\n{error_detail}")
+        logger.error(f"[DECODE] Error general en proceso de decodificación: {str(e)}\n{error_detail}")
         return JSONResponse(
             status_code=500,
             content={
