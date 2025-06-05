@@ -5,7 +5,7 @@ def descomprimir(mensaje_comprimido):
   #print("\n:::::MENSAJE:::::\n", mensaje_comprimido)
 
   response: ChatResponse = chat(
-    model='gemma2:27b',
+    model='gemma3:27b',
     messages=[
       {
         'role': 'user',

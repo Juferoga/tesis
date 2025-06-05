@@ -1,0 +1,326 @@
+==============================================
+INICIANDO MÓDULO DE EVALUACIÓN DE ATAQUES
+==============================================
+Tiempo de ejecución [Inicialización módulo de ataques]: 0.0133 segundos
+
+==================================================
+INICIANDO BATERÍA DE ATAQUES
+==================================================
+
+=== Aplicando ataque de ruido gaussiano ===
+MSE: 1073.98, PSNR: -30.31 dB
+Distorsión: 26.14
+Tiempo de ataque: 0.0000 segundos
+Nivel de ruido: 0.001
+MSE: 1073.9833, PSNR: -30.3100 dB
+Distorsión: 26.1430
+Tiempo de ejecución [Ataque de ruido]: 0.6539 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 2019
+Porcentaje de bits correctos: 50.48%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de ruido gaussiano ===
+MSE: 4436.91, PSNR: -36.47 dB
+Distorsión: 130.72
+Tiempo de ataque: 0.0000 segundos
+Nivel de ruido: 0.005
+MSE: 4436.9123, PSNR: -36.4708 dB
+Distorsión: 130.7180
+Tiempo de ejecución [Ataque de ruido]: 0.6143 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 1971
+Porcentaje de bits correctos: 49.28%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de ruido gaussiano ===
+MSE: 2470.28, PSNR: -33.93 dB
+Distorsión: 261.43
+Tiempo de ataque: 0.0000 segundos
+Nivel de ruido: 0.01
+MSE: 2470.2828, PSNR: -33.9275 dB
+Distorsión: 261.4314
+Tiempo de ejecución [Ataque de ruido]: 0.6160 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 1964
+Porcentaje de bits correctos: 49.10%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de ruido gaussiano ===
+MSE: 489.85, PSNR: -26.90 dB
+Distorsión: 1307.20
+Tiempo de ataque: 0.0000 segundos
+Nivel de ruido: 0.05
+MSE: 489.8466, PSNR: -26.9006 dB
+Distorsión: 1307.1982
+Tiempo de ejecución [Ataque de ruido]: 0.6121 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 1977
+Porcentaje de bits correctos: 49.43%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de compresión MP3 (128kbps) ===
+MSE: 3517.85, PSNR: -35.46 dB
+Distorsión: 190.64
+Tiempo de ataque: 0.0000 segundos
+Formato: mp3, Calidad: 128kbps
+MSE: 3517.8538, PSNR: -35.4628 dB
+Distorsión: 190.6364
+Tiempo de ejecución [Ataque de compresión mp3]: 4.4074 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de compresión MP3 (64kbps) ===
+MSE: 2689.30, PSNR: -34.30 dB
+Distorsión: 347.97
+Tiempo de ataque: 0.0000 segundos
+Formato: mp3, Calidad: 64kbps
+MSE: 2689.2954, PSNR: -34.2964 dB
+Distorsión: 347.9682
+Tiempo de ejecución [Ataque de compresión mp3]: 3.8128 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de compresión OGG (64kbps) ===
+MSE: 522024.06, PSNR: -57.18 dB
+Distorsión: 187480205.57
+Tiempo de ataque: 0.0000 segundos
+Formato: ogg, Calidad: 64kbps
+MSE: 522024.0584, PSNR: -57.1769 dB
+Distorsión: 187480205.5700
+Tiempo de ejecución [Ataque de compresión ogg]: 4.2309 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de filtro paso bajo (8000Hz) ===
+MSE: 391.07, PSNR: -25.92 dB
+Distorsión: 2710.49
+Tiempo de ataque: 0.0000 segundos
+Frecuencia de corte: 8000Hz, Orden: 5
+MSE: 391.0690, PSNR: -25.9225 dB
+Distorsión: 2710.4894
+Tiempo de ejecución [Ataque de filtrado]: 1.4489 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de filtro paso bajo (5000Hz) ===
+MSE: 346.30, PSNR: -25.39 dB
+Distorsión: 2849.53
+Tiempo de ataque: 0.0000 segundos
+Frecuencia de corte: 5000Hz, Orden: 5
+MSE: 346.3016, PSNR: -25.3945 dB
+Distorsión: 2849.5266
+Tiempo de ejecución [Ataque de filtrado]: 1.4370 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de filtro paso bajo (3000Hz) ===
+MSE: 346.03, PSNR: -25.39 dB
+Distorsión: 2874.66
+Tiempo de ataque: 0.0000 segundos
+Frecuencia de corte: 3000Hz, Orden: 5
+MSE: 346.0307, PSNR: -25.3911 dB
+Distorsión: 2874.6552
+Tiempo de ejecución [Ataque de filtrado]: 1.4647 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de remuestreo (factor 2) ===
+MSE: 1041.27, PSNR: -30.18 dB
+Distorsión: 32.32
+Tiempo de ataque: 0.0000 segundos
+Factor de submuestreo: 2
+MSE: 1041.2733, PSNR: -30.1756 dB
+Distorsión: 32.3233
+Tiempo de ejecución [Ataque de remuestreo]: 7.0417 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de remuestreo (factor 4) ===
+MSE: 3275.87, PSNR: -35.15 dB
+Distorsión: 121.81
+Tiempo de ataque: 0.0000 segundos
+Factor de submuestreo: 4
+MSE: 3275.8670, PSNR: -35.1533 dB
+Distorsión: 121.8089
+Tiempo de ejecución [Ataque de remuestreo]: 5.1891 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 1143
+Porcentaje de bits correctos: 28.57%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de estiramiento temporal (factor 1.05) ===
+MSE: 164.90, PSNR: -22.17 dB
+Distorsión: 3823.34
+Tiempo de ataque: 0.0000 segundos
+Factor de estiramiento: 1.05
+MSE: 164.9020, PSNR: -22.1723 dB
+Distorsión: 3823.3399
+Tiempo de ejecución [Ataque de estiramiento]: 5.5903 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 1970
+Porcentaje de bits correctos: 49.25%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de estiramiento temporal (factor 1.1) ===
+MSE: 165.97, PSNR: -22.20 dB
+Distorsión: 3720.61
+Tiempo de ataque: 0.0000 segundos
+Factor de estiramiento: 1.1
+MSE: 165.9693, PSNR: -22.2003 dB
+Distorsión: 3720.6138
+Tiempo de ejecución [Ataque de estiramiento]: 5.6943 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 2031
+Porcentaje de bits correctos: 50.78%
+❌ No se pudo recuperar el mensaje correctamente
+
+=== Aplicando ataque de escalado de amplitud (factor 0.8) ===
+MSE: 1794.66, PSNR: -32.54 dB
+Distorsión: 575.94
+Tiempo de ataque: 0.0000 segundos
+Factor de escalado: 0.8
+MSE: 1794.6621, PSNR: -32.5398 dB
+Distorsión: 575.9436
+Tiempo de ejecución [Ataque de escalado]: 0.1828 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de escalado de amplitud (factor 1.2) ===
+MSE: 1794.64, PSNR: -32.54 dB
+Distorsión: 572.45
+Tiempo de ataque: 0.0000 segundos
+Factor de escalado: 1.2
+MSE: 1794.6389, PSNR: -32.5398 dB
+Distorsión: 572.4542
+Tiempo de ejecución [Ataque de escalado]: 0.1817 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de adición de eco (delay=0.3s, decay=0.6) ===
+MSE: 622.14, PSNR: -27.94 dB
+Distorsión: 1572.41
+Tiempo de ataque: 0.0000 segundos
+Delay: 0.3s, Decay: 0.6
+MSE: 622.1396, PSNR: -27.9389 dB
+Distorsión: 1572.4085
+Tiempo de ejecución [Ataque de eco]: 0.2556 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de reducción de bits (12 bits) ===
+MSE: 17.40, PSNR: -12.40 dB
+Distorsión: 3.48
+Tiempo de ataque: 0.0000 segundos
+Bits: 12
+MSE: 17.3953, PSNR: -12.4043 dB
+Distorsión: 3.4792
+Tiempo de ejecución [Ataque de reducción de bits]: 0.2029 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+
+=== Aplicando ataque de reducción de bits (8 bits) ===
+MSE: 5366.91, PSNR: -37.30 dB
+Distorsión: 63.14
+Tiempo de ataque: 0.0000 segundos
+Bits: 8
+MSE: 5366.9062, PSNR: -37.2972 dB
+Distorsión: 63.1363
+Tiempo de ejecución [Ataque de reducción de bits]: 0.2055 segundos
+
+--- Intentando recuperar mensaje ---
+Bits totales: 4000
+Bits correctos: 4000
+Porcentaje de bits correctos: 100.00%
+✅ Mensaje recuperado exitosamente
+Tiempo de ejecución [Ejecución de ataques]: 44.8790 segundos
+
+--- Resumen de resultados de ataques ---
+Ataques superados: 11 de 18 (61.1%)
+Gráfica de resultados de ataques guardada en: plots/attack_results.png
+
+=== Aplicando ataque de ruido gaussiano ===
+MSE: 2472.53, PSNR: -33.93 dB
+Distorsión: 261.44
+Tiempo de ataque: 0.0000 segundos
+Nivel de ruido: 0.01
+MSE: 2472.5335, PSNR: -33.9314 dB
+Distorsión: 261.4444
+Tiempo de ejecución [Ataque de ruido]: 0.6193 segundos
+
+=== Aplicando ataque de compresión MP3 (64kbps) ===
+MSE: 2689.30, PSNR: -34.30 dB
+Distorsión: 347.97
+Tiempo de ataque: 0.0000 segundos
+Formato: mp3, Calidad: 64kbps
+MSE: 2689.2954, PSNR: -34.2964 dB
+Distorsión: 347.9682
+Tiempo de ejecución [Ataque de compresión mp3]: 3.8381 segundos
+
+=== Aplicando ataque de filtro paso bajo (3000Hz) ===
+MSE: 346.03, PSNR: -25.39 dB
+Distorsión: 2874.66
+Tiempo de ataque: 0.0000 segundos
+Frecuencia de corte: 3000Hz, Orden: 5
+MSE: 346.0307, PSNR: -25.3911 dB
+Distorsión: 2874.6552
+Tiempo de ejecución [Ataque de filtrado]: 1.4686 segundos
+Audio original demasiado largo, limitando a 10 segundos para visualización

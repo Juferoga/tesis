@@ -84,14 +84,17 @@ def extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_s
   
   extraccion_correcta = mensaje_bits == bits_extraidos
   
-
   if extraccion_correcta:
-    mensaje_original_bytes = np.array([ord(c) for c in mensaje_extraido], dtype=np.uint8)
-    mensaje_desencriptado_bytes = xor_encriptado(mensaje_original_bytes, llave)
-    mensaje_desencriptado = "".join([chr(b) for b in mensaje_desencriptado_bytes])
-    return mensaje_desencriptado
+    return bits_extraidos, mensaje_extraido
   else:
-    return None
+    return None, None
+
+def desencriptar_mensaje(mensaje_extraido, llave):
+  """Desencripta el mensaje extraído del audio"""
+  mensaje_original_bytes = np.array([ord(c) for c in mensaje_extraido], dtype=np.uint8)
+  mensaje_desencriptado_bytes = xor_encriptado(mensaje_original_bytes, llave)
+  mensaje_desencriptado = "".join([chr(b) for b in mensaje_desencriptado_bytes])
+  return mensaje_desencriptado
 
 def ejecutar_ataques(ruta_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits_length, sequential=False):
   """Ejecutar la batería de ataques sobre el audio esteganografiado y evaluar su robustez
@@ -251,7 +254,7 @@ def main():
 
   # Extraer y verificar el mensaje con medición de tiempo
   with TimerContextManager("Extracción mensaje") as timer:
-    mensaje_desencriptado = extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits, llave, sequential)
+    bits_extraidos, mensaje_extraido = extraer_y_verificar_mensaje(arreglo_audio_modificado, inicio_segmento, fin_segmento, mensaje_bits, llave, sequential)
   section_names.append("Extracción mensaje")
   execution_times.append(timer.elapsed)
   
@@ -261,7 +264,19 @@ def main():
   memory_values.append(recursos["memory_mb"])
   timestamps.append(time.time() - global_start_time)
   
-  if mensaje_desencriptado:
+  if bits_extraidos is not None and mensaje_extraido is not None:
+    # Desencriptar mensaje con medición de tiempo
+    with TimerContextManager("Desencriptación") as timer:
+      mensaje_desencriptado = desencriptar_mensaje(mensaje_extraido, llave)
+    section_names.append("Desencriptación")
+    execution_times.append(timer.elapsed)
+    
+    # Registrar recursos después de desencriptación
+    recursos = medir_recursos()
+    cpu_values.append(recursos["cpu_percent"])
+    memory_values.append(recursos["memory_mb"])
+    timestamps.append(time.time() - global_start_time)
+    
     #print(f"\nMensaje desencriptado: {mensaje_desencriptado}")
     with TimerContextManager("Descompresión") as timer:
       mensaje_descomprimido = descomprimir(mensaje_comprimido)
@@ -313,6 +328,18 @@ def main():
       resultados_ataques = ejecutar_ataques(ruta_audio_modificado, inicio_segmento, fin_segmento, len(mensaje_bits), sequential)
     section_names.append("Módulo de ataques")
     execution_times.append(timer.elapsed)
-
+    
+  # INPRIMIR COMPILADO DE TIEMPOS DE EJECUCIÓN
+  print("\n------------Tiempos de ejecución------------")
+  for name, exec_time in zip(section_names, execution_times):
+    print(f"{name}: {exec_time:.4f} segundos")
+  print(f"Tiempo total: {global_execution_time:.4f} segundos")
+  # Graficar tiempos de ejecución
+  plot_execution_times(section_names, execution_times)
+  print("\n------------Recursos utilizados------------")
+  for i, timestamp in enumerate(timestamps):
+    print(f"Tiempo {i}: {timestamp:.4f} segundos - CPU: {cpu_values[i]}% - Memoria: {memory_values[i]} MB")
+  plot_resource_usage(cpu_values, memory_values, timestamps)
+  print("\n------------Fin del programa------------")
 if __name__ == "__main__":
   main()

@@ -48,7 +48,9 @@ from src.utils.metricas import (
     invisibilidad, 
     entropia, 
     correlacion_cruzada, 
-    analisis_componentes
+    analisis_componentes,
+    medir_recursos,
+    TimerContextManager
 )
 
 from src.utils.graficas import (
@@ -57,7 +59,9 @@ from src.utils.graficas import (
     plot_audio_spectrograms,
     plot_audio_difference,
     plot_frequency_distribution,
-    plot_audio_waveforms_librosa
+    plot_audio_waveforms_librosa,
+    plot_execution_times,
+    plot_resource_usage
 )
 
 # Create FastAPI app
@@ -191,12 +195,35 @@ async def encode_message(
         )
     
     logger.info(f"Iniciando codificación de mensaje en archivo {file_id}.wav (Método: {'Secuencial' if sequential else 'Aleatorio'})")
-    start_time = time.time()
+    
+    # Variables para medir rendimiento
+    section_names = []
+    execution_times = []
+    global_start_time = time.time()
+    cpu_values = []
+    memory_values = []
+    timestamps = []
+    
+    # Registrar el uso inicial de recursos
+    recursos = medir_recursos()
+    cpu_values.append(recursos["cpu_percent"])
+    memory_values.append(recursos["memory_mb"])
+    timestamps.append(0)
     
     try:
         # Verificar que el archivo WAV sea adecuado
         try:
-            arreglo_audio_original = cargar_audio(str(audio_path))
+            with TimerContextManager("Carga de audio") as timer:
+                arreglo_audio_original = cargar_audio(str(audio_path))
+            section_names.append("Carga de audio")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de cargar el audio
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+            
             logger.debug(f"Audio cargado correctamente: {len(arreglo_audio_original)} samples")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -212,7 +239,17 @@ async def encode_message(
         
         # Comprimir mensaje
         try:
-            mensaje_comprimido = comprimir(message)
+            with TimerContextManager("Compresión de texto") as timer:
+                mensaje_comprimido = comprimir(message)
+            section_names.append("Compresión de texto")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de compresión
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+            
             logger.debug(f"Mensaje comprimido correctamente. Longitud original: {len(message)}, Comprimido: {len(mensaje_comprimido)}")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -228,7 +265,17 @@ async def encode_message(
         
         # Convert message to bits and encrypt
         try:
-            mensaje_bits, llave = convertir_mensaje_a_bits(mensaje_comprimido)
+            with TimerContextManager("Encriptación") as timer:
+                mensaje_bits, llave = convertir_mensaje_a_bits(mensaje_comprimido)
+            section_names.append("Encriptación")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de encriptación
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+            
             logger.debug(f"Mensaje convertido a bits: {len(mensaje_bits)} bits")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -244,12 +291,22 @@ async def encode_message(
         
         # Insert message into audio
         try:
-            arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(
-                arreglo_audio_original, 
-                mensaje_bits, 
-                False, 
-                sequential
-            )
+            with TimerContextManager("Esteganografía") as timer:
+                arreglo_audio_modificado, inicio_segmento, fin_segmento = insertar_mensaje_en_audio(
+                    arreglo_audio_original, 
+                    mensaje_bits, 
+                    False, 
+                    sequential
+                )
+            section_names.append("Esteganografía")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de esteganografía
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+            
             logger.debug(f"Mensaje insertado correctamente. Segmento: {inicio_segmento}-{fin_segmento}")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -273,7 +330,17 @@ async def encode_message(
         
         # Save modified audio
         try:
-            guardar_audio_modificado(str(output_path), arreglo_audio_modificado, params)
+            with TimerContextManager("Guardar audio") as timer:
+                guardar_audio_modificado(str(output_path), arreglo_audio_modificado, params)
+            section_names.append("Guardar audio")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de guardar audio
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+            
             logger.debug(f"Audio modificado guardado en: {output_path}")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -285,49 +352,57 @@ async def encode_message(
                     "detalle": f"No se pudo guardar el audio con el mensaje oculto: {str(e)}",
                     "ubicacion": error_detail
                 }
-            )
-        
-        # Generate metrics
+            )        # Generate metrics
         try:
-            metrics = {}
+            with TimerContextManager("Cálculo de métricas") as timer:
+                metrics = {}
+                
+                # Handle mse_psnr which returns (mse, psnr)
+                mse, psnr = mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
+                metrics["mse"] = mse
+                metrics["psnr"] = psnr
+                
+                # Handle distorsion which returns a single float value
+                metrics["distorsion"] = distorsion(arreglo_audio_original, arreglo_audio_modificado)
+                
+                # Handle invisibilidad which returns (chi2_stat, chi2_p, ks_stat, ks_p, U1, p)
+                chi2_stat, chi2_p, ks_stat, ks_p, U1, p = invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
+                metrics["invisibilidad"] = {
+                    "chi2_stat": chi2_stat,
+                    "chi2_p": chi2_p,
+                    "ks_stat": ks_stat,
+                    "ks_p": ks_p,
+                    "mannwhitney_U": U1,
+                    "mannwhitney_p": p
+                }
+                
+                # Handle entropia which returns (ent_original, ent_modificado)
+                ent_original, ent_modificado = entropia(arreglo_audio_original, arreglo_audio_modificado)
+                metrics["entropia"] = {
+                    "original": ent_original,
+                    "modificado": ent_modificado
+                }
+                
+                # Handle correlacion_cruzada which returns a single float value
+                metrics["correlacion"] = correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
+                
+                # Handle analisis_componentes which returns (media_original, media_modificado, std_original, std_modificado)
+                media_original, media_modificado, std_original, std_modificado = analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
+                metrics["analisis"] = {
+                    "media_original": media_original,
+                    "media_modificado": media_modificado,
+                    "std_original": std_original,
+                    "std_modificado": std_modificado
+                }
             
-            # Handle mse_psnr which returns (mse, psnr)
-            mse, psnr = mse_psnr(arreglo_audio_original, arreglo_audio_modificado)
-            metrics["mse"] = mse
-            metrics["psnr"] = psnr
+            section_names.append("Cálculo de métricas")
+            execution_times.append(timer.elapsed)
             
-            # Handle distorsion which returns a single float value
-            metrics["distorsion"] = distorsion(arreglo_audio_original, arreglo_audio_modificado)
-            
-            # Handle invisibilidad which returns (chi2_stat, chi2_p, ks_stat, ks_p, U1, p)
-            chi2_stat, chi2_p, ks_stat, ks_p, U1, p = invisibilidad(arreglo_audio_original, arreglo_audio_modificado)
-            metrics["invisibilidad"] = {
-                "chi2_stat": chi2_stat,
-                "chi2_p": chi2_p,
-                "ks_stat": ks_stat,
-                "ks_p": ks_p,
-                "mannwhitney_U": U1,
-                "mannwhitney_p": p
-            }
-            
-            # Handle entropia which returns (ent_original, ent_modificado)
-            ent_original, ent_modificado = entropia(arreglo_audio_original, arreglo_audio_modificado)
-            metrics["entropia"] = {
-                "original": ent_original,
-                "modificado": ent_modificado
-            }
-            
-            # Handle correlacion_cruzada which returns a single float value
-            metrics["correlacion"] = correlacion_cruzada(arreglo_audio_original, arreglo_audio_modificado)
-            
-            # Handle analisis_componentes which returns (media_original, media_modificado, std_original, std_modificado)
-            media_original, media_modificado, std_original, std_modificado = analisis_componentes(arreglo_audio_original, arreglo_audio_modificado)
-            metrics["analisis"] = {
-                "media_original": media_original,
-                "media_modificado": media_modificado,
-                "std_original": std_original,
-                "std_modificado": std_modificado
-            }
+            # Registrar recursos después de calcular métricas
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
             
             logger.debug("Métricas generadas correctamente")
         except Exception as e:
@@ -338,49 +413,72 @@ async def encode_message(
         # Generate visualization plots
         plots = []
         try:
-            # Limpiamos las gráficas anteriores
-            for plot_file in PLOTS_DIR.glob("*.png"):
-                try:
-                    plot_file.unlink()
-                except:
-                    pass
-            
-            try:
-                plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-                plots.append("audio_waveforms.png")
-            except Exception as e:
-                logger.warning(f"Error al generar gráfica de forma de onda: {str(e)}")
-            
-            try:
-                plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-                plots.append("audio_histograms.png")
-            except Exception as e:
-                logger.warning(f"Error al generar histogramas: {str(e)}")
-            
-            try:
-                plot_audio_spectrograms(str(audio_path), str(output_path))
-                plots.append("audio_spectrograms.png")
-            except Exception as e:
-                logger.warning(f"Error al generar espectrogramas: {str(e)}")
-            
-            try:
-                plot_audio_difference(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
-                plots.append("audio_difference.png")
-            except Exception as e:
-                logger.warning(f"Error al generar gráfica de diferencia: {str(e)}")
-            
-            try:
-                plot_frequency_distribution(arreglo_audio_original, arreglo_audio_modificado, params.framerate)
-                plots.append("frequency_distribution.png")
-            except Exception as e:
-                logger.warning(f"Error al generar distribución de frecuencias: {str(e)}")
-            
-            try:
-                plot_audio_waveforms_librosa(str(audio_path), str(output_path))
-                plots.append("audio_waveforms_librosa.png")
-            except Exception as e:
-                logger.warning(f"Error al generar formas de onda librosa: {str(e)}")
+            with TimerContextManager("Generación de gráficas") as timer:
+                # Limpiamos las gráficas anteriores
+                for plot_file in PLOTS_DIR.glob("*.png"):
+                    try:
+                        plot_file.unlink()
+                    except:
+                        pass
                 
+                try:
+                    plot_audio_waveforms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+                    plots.append("audio_waveforms.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar gráfica de forma de onda: {str(e)}")
+                
+                try:
+                    plot_audio_histograms(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+                    plots.append("audio_histograms.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar histogramas: {str(e)}")
+                
+                try:
+                    plot_audio_spectrograms(str(audio_path), str(output_path))
+                    plots.append("audio_spectrograms.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar espectrogramas: {str(e)}")
+                
+                try:
+                    plot_audio_difference(arreglo_audio_original, arreglo_audio_modificado, 0, len(arreglo_audio_original))
+                    plots.append("audio_difference.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar gráfica de diferencia: {str(e)}")
+                
+                try:
+                    plot_frequency_distribution(arreglo_audio_original, arreglo_audio_modificado, params.framerate)
+                    plots.append("frequency_distribution.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar distribución de frecuencias: {str(e)}")
+                
+                try:
+                    plot_audio_waveforms_librosa(str(audio_path), str(output_path))
+                    plots.append("audio_waveforms_librosa.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar formas de onda librosa: {str(e)}")
+                
+                # Generar gráficas de tiempos y recursos
+                try:
+                    plot_execution_times(section_names, execution_times)
+                    plots.append("execution_times.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar gráfica de tiempos de ejecución: {str(e)}")
+                
+                try:
+                    plot_resource_usage(cpu_values, memory_values, timestamps)
+                    plots.append("resource_usage.png")
+                except Exception as e:
+                    logger.warning(f"Error al generar gráfica de uso de recursos: {str(e)}")
+            
+            section_names.append("Generación de gráficas")
+            execution_times.append(timer.elapsed)
+            
+            # Registrar recursos después de generar gráficas
+            recursos = medir_recursos()
+            cpu_values.append(recursos["cpu_percent"])
+            memory_values.append(recursos["memory_mb"])
+            timestamps.append(time.time() - global_start_time)
+                    
             logger.debug(f"Gráficas generadas correctamente: {plots}")
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -399,8 +497,9 @@ async def encode_message(
         except Exception as e:
             logger.warning(f"Error al guardar metadatos: {str(e)}")
         
-        process_time = time.time() - start_time
-        logger.info(f"Codificación completada en {process_time:.2f} segundos. ID de archivo: {encoded_file_id}")
+        # Tiempo de ejecución global
+        global_execution_time = time.time() - global_start_time
+        logger.info(f"Codificación completada en {global_execution_time:.2f} segundos. ID de archivo: {encoded_file_id}")
         
         return {
             "success": True,
@@ -408,7 +507,13 @@ async def encode_message(
             "metrics": metrics,
             "plots": plots,
             "sequential": sequential,
-            "processTime": round(process_time, 2),
+            "processTime": round(global_execution_time, 2),
+            "section_times": {name: round(time, 4) for name, time in zip(section_names, execution_times)},
+            "resource_usage": {
+                "cpu_values": cpu_values,
+                "memory_values": memory_values,
+                "timestamps": timestamps
+            },
             "original_filename": os.path.basename(audio_path),
             "encoded_filename": f"audio_esteganografiado_{datetime.now().strftime('%d_%m_%Y_%H_%M_%S')}.wav"
         }
@@ -736,4 +841,4 @@ async def shutdown_event():
 
 # For local development
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("src.api.app:app", host="0.0.0.0", port=8000, reload=True)

@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const audioPlayer = document.getElementById('audioPlayer');
     const metricsArea = document.getElementById('metricsArea');
     const metricsContent = document.getElementById('metricsContent');
+    const timingArea = document.getElementById('timingArea');
+    const sectionTimesContent = document.getElementById('sectionTimesContent');
+    const resourceUsageContent = document.getElementById('resourceUsageContent');
     const plotsArea = document.getElementById('plotsArea');
     const plotsContent = document.getElementById('plotsContent');
     const closeResults = document.getElementById('closeResults');
@@ -459,7 +462,18 @@ document.addEventListener('DOMContentLoaded', function() {
             metricsContent.appendChild(metricError);
             metricsArea.classList.remove('d-none');
         }
-        
+
+        // Mostrar información de timing y recursos
+        if (data.section_times || data.resource_usage) {
+            timingArea.classList.remove('d-none');
+            if (data.section_times) {
+                displaySectionTimes(data.section_times);
+            }
+            if (data.resource_usage) {
+                displayResourceUsage(data.resource_usage);
+            }
+        }
+
         // Mostrar gráficas
         if (data.plots && data.plots.length > 0) {
             plotsArea.classList.remove('d-none');
@@ -619,7 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'audio_spectrograms.png': 'Espectrogramas',
             'audio_difference.png': 'Diferencia de Audio',
             'frequency_distribution.png': 'Distribución de Frecuencias',
-            'audio_waveforms_librosa.png': 'Formas de Onda (Librosa)'
+            'audio_waveforms_librosa.png': 'Formas de Onda (Librosa)',
+            'execution_times.png': 'Tiempos de Ejecución',
+            'resource_usage.png': 'Uso de Recursos (CPU y Memoria)'
         };
         
         // Si existe una traducción directa, usarla
@@ -696,6 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorArea.classList.add('d-none');
         downloadArea.classList.add('d-none');
         metricsArea.classList.add('d-none');
+        timingArea.classList.add('d-none');
         plotsArea.classList.add('d-none');
         processTimeEncode.classList.add('d-none');
         
@@ -705,6 +722,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Limpiar secciones de contenido
         metricsContent.innerHTML = '';
+        sectionTimesContent.innerHTML = '';
+        resourceUsageContent.innerHTML = '';
         plotsContent.innerHTML = '';
         
         // Restablecer reproductor de audio
@@ -712,5 +731,92 @@ document.addEventListener('DOMContentLoaded', function() {
         audioPlayer.pause();
         audioPlayer.src = '';
         playEncodedAudio.innerHTML = '<i class="fas fa-play me-2"></i>Reproducir Audio';
+    }
+    
+    // Función auxiliar para mostrar tiempos de ejecución por sección
+    function displaySectionTimes(sectionTimes) {
+        sectionTimesContent.innerHTML = '';
+        
+        // Crear tabla de tiempos
+        const table = document.createElement('table');
+        table.className = 'table table-sm table-striped';
+        
+        const tbody = document.createElement('tbody');
+        
+        // Agregar filas para cada sección
+        Object.entries(sectionTimes).forEach(([sectionName, time]) => {
+            const row = document.createElement('tr');
+            
+            const nameCell = document.createElement('td');
+            nameCell.textContent = sectionName;
+            nameCell.className = 'fw-medium';
+            
+            const timeCell = document.createElement('td');
+            timeCell.textContent = `${time}s`;
+            timeCell.className = 'text-end font-monospace';
+            
+            row.appendChild(nameCell);
+            row.appendChild(timeCell);
+            tbody.appendChild(row);
+        });
+        
+        table.appendChild(tbody);
+        sectionTimesContent.appendChild(table);
+        
+        // Calcular tiempo total
+        const totalTime = Object.values(sectionTimes).reduce((sum, time) => sum + time, 0);
+        const totalRow = document.createElement('div');
+        totalRow.className = 'alert alert-info mt-2 mb-0';
+        totalRow.innerHTML = `<strong>Tiempo Total: ${totalTime.toFixed(4)}s</strong>`;
+        sectionTimesContent.appendChild(totalRow);
+    }
+
+    // Función auxiliar para mostrar uso de recursos
+    function displayResourceUsage(resourceUsage) {
+        resourceUsageContent.innerHTML = '';
+        
+        const { cpu_values, memory_values, timestamps } = resourceUsage;
+        
+        if (!cpu_values || !memory_values || !timestamps) {
+            resourceUsageContent.innerHTML = '<p class="text-muted">No hay datos de recursos disponibles</p>';
+            return;
+        }
+        
+        // Estadísticas de CPU
+        const avgCpu = (cpu_values.reduce((sum, val) => sum + val, 0) / cpu_values.length).toFixed(2);
+        const maxCpu = Math.max(...cpu_values).toFixed(2);
+        
+        // Estadísticas de memoria
+        const avgMemory = (memory_values.reduce((sum, val) => sum + val, 0) / memory_values.length).toFixed(2);
+        const maxMemory = Math.max(...memory_values).toFixed(2);
+        
+        const statsHtml = `
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="card bg-light">
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">CPU</h6>
+                            <p class="card-text mb-0">
+                                <small>Promedio: ${avgCpu}%</small><br>
+                                <small>Máximo: ${maxCpu}%</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card bg-light">
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">Memoria</h6>
+                            <p class="card-text mb-0">
+                                <small>Promedio: ${avgMemory} MB</small><br>
+                                <small>Máximo: ${maxMemory} MB</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        resourceUsageContent.innerHTML = statsHtml;
     }
 });
