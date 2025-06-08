@@ -186,15 +186,16 @@ def main():
 
   # Mensaje a insertar
   mensaje = """
-    In a quiet seaside town, Clara discovered a message in a bottle washed ashore.
-    The note inside held a plea for help from a stranded sailor named Leo.
-    Determined to assist, Clara gathered the townsfolk, and together they devised a plan.
-    They repaired an old fishing boat and set out to rescue Leo.
-    Upon reaching the deserted island mentioned in the note, they found Leo grateful and marooned for weeks.
-    The island, though remote, was a treasure trove of beauty.
-    Leo shared tales of survival, and the townsfolk shared laughter and camaraderie.
-    When the rescued sailor and the townspeople returned, a newfound bond united them.
-    The once quiet town transformed into a lively community, forever changed by a message in a bottle that bridged the gap between strangers.
+    El día en que lo iban a matar, Santiago Nasar se levantó a las 5.30 de la mañana para esperar el buque en que llegaba el obispo. 
+    Había soñado que atravesaba un bosque de higuerones donde caía una llovizna tierna, 
+    y por un instante fue feliz en el sueño, 
+    pero al despertar se sintió por completo salpicado de cagada de pájaros. 
+    «Siempre soñaba con árboles», me dijo Plácida Linero, su madre, 
+    evocando 27 años después los pormenores de aquel lunes ingrato. 
+    «La semana anterior había soñado que iba solo en un avión de papel de estaño que volaba sin tropezar por entre los almendros», me dijo. 
+    Tenía una reputación muy bien ganada de interprete certera de los sueños ajenos, 
+    siempre que se los contaran en ayunas, pero no había advertido ningún augurio aciago en esos dos sueños de su hijo, 
+    ni en los otros sueños con árboles que él le había contado en las mañanas que precedieron a su muerte.
   """
 
   # Comprimir mensaje con medición de tiempo

@@ -9,7 +9,7 @@ def descomprimir(mensaje_comprimido):
     messages=[
       {
         'role': 'user',
-        'content': 'Give me the reconstruction of the following message, only the reconstruction: '+mensaje_comprimido,
+        'content': 'Give me the reconstruction of the following message, only the reconstruction (in the language of the message): '+mensaje_comprimido,
       },
     ]
   )
