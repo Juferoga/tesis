@@ -1,4 +1,4 @@
-# Proyecto de Procesamiento de Audio
+# Proyecto de grado  Criptosistema esteganográfico de audio, basado en atractores caóticos y compresión de textos por medio de redes neuronales.
 
 ## Descripción
 
